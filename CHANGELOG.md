@@ -4,11 +4,17 @@ Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#v
 
 ## 0.1.0 (unreleased)
 
-The first release: stage 1 (ADR 0001).
+The first release: stage 1 (ADR 0001), with stage 1's findings fixed as the owner decided on 2026-11-20 (ADR 0001, decisions 8-12).
+
+What changes for an app moving from its own copy of the tokens (PagerArchive): every value is unchanged except where below, so the look doesn't change but for these two:
+
+- **New `--alert-edge`** (both looks, both themes; `var(--notice-edge)`): an alert that stays (backup, upgrade) is must-notice and **must** draw a `--border-width-strong` edge in it. Against the page: Harbour 5.56 / 8.37, Console 5.93 / 8.40 (light / dark). The `--warn-bg` fill is unchanged.
+- **New `--heat-0-fg`..`--heat-4-fg`**: a heat cell writes its count in its step's token. All are `--muted` (step 0) or `--fg` except Console dark's `--heat-4-fg`, which is `--accent-fg` (4.54:1, was 3.55:1 with `--fg`). The shades are unchanged.
+- **No known findings**: `contrast/findings.json` is empty, and the check passes with none.
 
 - **Tokens** (`archiveux/tokens.css`): PagerArchive's design tokens, Harbour and Console, light and dark, moved with names and values unchanged (from PagerArchive main at 6dfa1f0, including PR #88's `--highlight`, `--notice-edge` and `--notice-countdown-height`). PagerArchive's map tokens stay in PagerArchive.
 - **Base styles** (`archiveux/base.css`): resets, type, links, focus rings, form controls, buttons, icons, tooltips, the release landing, reduced motion.
 - **Rules** (`docs/design-system.md`): each colour token's purpose and allowed pairings, the WCAG AA floor, and the patterns for notices and toasts, page rows, the bottom bar and the side menu.
-- **Contrast check** (`npm run check:contrast`, in CI) over every pairing in `contrast/pairs.json`, both looks, both themes. Five known findings (`contrast/findings.json`) for the owner: alerts have no edge against the page (all four), and Console dark's busiest heat cell (3.55:1).
-- **Gallery** (`npm run gallery`; GitHub Pages from `main`).
-- **Components plan** (`docs/components-plan.md`): no components yet.
+- **Contrast check** (`npm run check:contrast`, in CI) over every pairing in `contrast/pairs.json`, both looks, both themes, including the alert edge (on the page and on a card) and each heat step's text.
+- **Gallery** (`npm run gallery`; GitHub Pages from `main`), with an alert and the heat grid.
+- **Components plan** (`docs/components-plan.md`): the owner's move order, in four batches; no components yet.

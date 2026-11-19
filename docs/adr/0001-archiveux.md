@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (owner, 2026-11-19). Stage 1 built on the branch `stage-1`.
+Accepted (owner, 2026-11-19). Stage 1 built on the branch `stage-1`; its findings decided by the owner on 2026-11-20 (decisions 8-12) and fixed in 0.1.0.
 
 ## Context
 
@@ -23,8 +23,18 @@ PagerArchive and RadioArchive must feel like one application to the user, althou
 - **Tokens** moved from PagerArchive's `web/src/app.css` (main at 6dfa1f0, after PR #88) with names and values unchanged, so PagerArchive's look doesn't change when it imports them (stage 2). The generic base styles moved too. PagerArchive-specific things stay there: the map's tokens (`--map-*`, `--detail-map-width`, `--area-tag-*`) and the full-screen map's rule (`:root.map-full`).
 - **Looks are complete**: Console sets every token Harbour sets (PagerArchive ADR 0028), checked by `scripts/check-tokens.mjs`.
 - **Findings, not fixes**: pairs the current tokens fail are listed in `contrast/findings.json` and reported to the owner; their values are not changed, because the look is the owner's. The only values changed for contrast are those the owner already approved (the release notice, PagerArchive PR #88, already in the moved tokens). The check fails on any failure that isn't a listed finding, and on a listed finding that no longer fails.
-- **Components** don't move in stage 1: `docs/components-plan.md` inventories them, and the owner picks the order after seeing the plan and the gallery.
+- **Components** don't move in stage 1: `docs/components-plan.md` inventories them, and the owner picks the order after seeing the plan and the gallery (picked 2026-11-20: decision 12).
 - **CI** follows PagerArchive's conventions: actions pinned to commit SHAs, least-privilege permissions per job, time limits. The gallery is published with GitHub Pages from `main`.
+
+## Decided after stage 1 (the owner's, 2026-11-20)
+
+Stage 1 reported five findings and three calls the agent had made; the owner decided them all ("agree with all your suggestions"). Fixed in 0.1.0:
+
+8. **Admin alerts are must-notice**, and get a strong edge in every look and theme, at least 4.5:1 against `--bg`; their `--warn-bg` fill stays. The edge is a new token, `--alert-edge`, whose value is the notice's amber (`var(--notice-edge)`): one signal for everything that asks to be noticed, in a token of its own so alerts and the release notice can part later (`docs/design-system.md`, Alerts).
+9. **Heat grid text**: each heat step has its own text token, `--heat-0-fg`..`--heat-4-fg`, measured on its shade in every look and theme; the shades don't change. The owner asked that the darkest shades' counts use the page background colour instead of `--fg`. Measured, only Console dark's busiest shade fails with `--fg` (3.55:1), and `--bg` there is 4.43:1, just under the floor, so that one count is `--accent-fg` (`#111111`, 4.54:1), the darkest ink Console has; every other step keeps `--fg` (or `--muted` on the empty shade), where `--bg` would fail (`docs/design-system.md`, Charts).
+10. **Only the map's tokens stay in PagerArchive** (`--map-*`, `--detail-map-width`, `--area-tag-*`); every other token is ArchiveUx's.
+11. **`--border` dividers are decoration** and aren't measured (WCAG 1.4.11 doesn't apply); they may never be the only thing that shows a control or its state.
+12. **Components**: `PriorityBadge` and `Scrubber` move; `ReportCaveat` stays. The move order is in `docs/components-plan.md`. Nothing moves in 0.1.0.
 
 ## Releasing
 

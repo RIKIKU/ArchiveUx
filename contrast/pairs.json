@@ -19,8 +19,11 @@
     { "id": "heartbeat", "what": "Heartbeat label", "fg": "heartbeat-fg", "on": ["bg", "surface"], "kind": "text" },
     { "id": "chart-text", "what": "Chart labels and values", "fg": "chart-text", "on": ["bg", "surface"], "kind": "text" },
     { "id": "chart-muted", "what": "Chart secondary labels", "fg": "chart-muted", "on": ["bg", "surface"], "kind": "text" },
-    { "id": "heat-zero", "what": "Count written in an empty heat cell", "fg": "muted", "on": ["heat-0"], "kind": "text" },
-    { "id": "heat-text", "what": "Count written in a heat cell", "fg": "fg", "on": ["heat-1", "heat-2", "heat-3", "heat-4"], "kind": "text" },
+    { "id": "heat-0-text", "what": "Count written in an empty heat cell", "fg": "heat-0-fg", "on": ["heat-0"], "kind": "text" },
+    { "id": "heat-1-text", "what": "Count written in a heat cell, step 1", "fg": "heat-1-fg", "on": ["heat-1"], "kind": "text" },
+    { "id": "heat-2-text", "what": "Count written in a heat cell, step 2", "fg": "heat-2-fg", "on": ["heat-2"], "kind": "text" },
+    { "id": "heat-3-text", "what": "Count written in a heat cell, step 3", "fg": "heat-3-fg", "on": ["heat-3"], "kind": "text" },
+    { "id": "heat-4-text", "what": "Count written in the busiest heat cells", "fg": "heat-4-fg", "on": ["heat-4"], "kind": "text" },
     { "id": "print", "what": "Printed sheet", "fg": "print-fg", "on": ["print-bg"], "kind": "text" },
 
     { "id": "focus", "what": "Focus ring", "fg": "focus", "on": ["bg", "surface", "surface-2", "highlight"], "kind": "edge" },
@@ -33,7 +36,8 @@
     { "id": "landing-ring", "what": "Release landing ring on the side menu or bottom bar", "fg": "notice-edge", "on": ["surface"], "kind": "edge" },
 
     { "id": "notice-edge", "what": "Notice edge against the page", "fg": "notice-edge", "on": ["bg"], "kind": "notice" },
-    { "id": "alert-edge", "what": "Alert (warn-bg, no edge of its own) against the page", "fg": "warn-bg", "on": ["bg"], "kind": "notice" },
+    { "id": "alert-edge", "what": "Alert edge against the page", "fg": "alert-edge", "on": ["bg"], "kind": "notice" },
+    { "id": "alert-edge-card", "what": "Alert edge on a card", "fg": "alert-edge", "on": ["surface"], "kind": "edge" },
 
     { "id": "emergency-label", "what": "Emergency label", "fg": "emergency-badge-fg", "on": ["emergency-badge-bg"], "kind": "text" },
     { "id": "emergency-row-text", "what": "Text on an Emergency row", "fg": "fg", "on": ["emergency-row", "emergency-row-hover"], "kind": "text" },

@@ -39,6 +39,28 @@ test("the approved release notice passes on its edge (PR #88's measured numbers)
 	assert.equal(at('console', 'dark'), '8.40');
 });
 
+test('alerts: the old edgeless --warn-bg fails against the page; --alert-edge passes (owner, 2026-11-20)', () => {
+	const old = measure(tokens, { ...spec, pairs: [{ id: 'old-alert', what: 'edgeless alert', fg: 'warn-bg', on: ['bg'], kind: 'notice' }] });
+	assert.equal(old.length, 4);
+	assert.ok(old.every((m) => !m.pass && m.ratio < 1.5));
+	const r = measure(tokens, { ...spec, pairs: spec.pairs.filter((p) => p.id === 'alert-edge') });
+	const at = (look, theme) => r.find((m) => m.look === look && m.theme === theme).ratio.toFixed(2);
+	assert.equal(at('harbour', 'light'), '5.56');
+	assert.equal(at('harbour', 'dark'), '8.37');
+	assert.equal(at('console', 'light'), '5.93');
+	assert.equal(at('console', 'dark'), '8.40');
+});
+
+test('heat grid: every step has its own text token, each at least 4.5:1 in every look and theme', () => {
+	const ids = ['heat-0-text', 'heat-1-text', 'heat-2-text', 'heat-3-text', 'heat-4-text'];
+	const r = measure(tokens, { ...spec, pairs: spec.pairs.filter((p) => ids.includes(p.id)) });
+	assert.equal(r.length, ids.length * 4);
+	assert.ok(r.every((m) => m.ratio >= 4.5), r.filter((m) => m.ratio < 4.5).map((m) => `${m.look} ${m.theme} ${m.pair} ${m.ratio}`).join(', '));
+	// Console dark's busiest shade is light: its count is dark ink (--accent-fg), not --fg.
+	assert.equal(resolve(tokensOf(tokens, 'console'), 'heat-4-fg', 'dark'), resolve(tokensOf(tokens, 'console'), 'accent-fg', 'dark'));
+	assert.equal(resolve(tokensOf(tokens, 'console'), 'heat-4-fg', 'light'), resolve(tokensOf(tokens, 'console'), 'fg', 'light'));
+});
+
 test('a finding that no longer fails is stale', () => {
 	const extra = { look: 'harbour', theme: 'light', pair: 'text', fg: 'fg', on: 'bg' };
 	assert.deepEqual(judge(measure(tokens, spec), [...findings, extra]).stale, [extra]);

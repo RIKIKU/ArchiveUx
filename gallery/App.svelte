@@ -149,10 +149,40 @@
 				<h3>States</h3>
 				<p class="ok">Saved: --fg on --accent-soft (.ok).</p>
 				<p class="warn">A caveat or flag: --warn-fg on --warn-bg.</p>
-				<p class="alert">An alert (an admin's backup alert): no edge of its own, a finding.</p>
 				<p class="error">An error line (.error).</p>
 				<p class="status">A status line (.status).</p>
 				<p><span class="live"></span> Live (--ok-fg dot)</p>
+			</div>
+			<div class="card">
+				<h3>Alerts</h3>
+				<p class="muted small">An alert that stays (an admin's backup or upgrade alert) is must-notice: --warn-fg on --warn-bg, with a --border-width-strong --alert-edge, at least 4.5:1 against the page.</p>
+				<div class="alert-stage">
+					<p class="alert">The last backup is 3 days old. <a href="#top">See the backups</a></p>
+				</div>
+				<div class="alert-stage on-card">
+					<p class="alert">The same alert on a card (--surface).</p>
+				</div>
+			</div>
+			<div class="card">
+				<h3>Heat grid</h3>
+				<p class="muted small">"When it's busy": five shades, none to most; each count in its step's text token, --heat-0-fg..--heat-4-fg.</p>
+				<table class="heat">
+					<thead><tr><th scope="col">Step</th>{#each [0, 1, 2, 3, 4] as s}<th scope="col">{s}</th>{/each}</tr></thead>
+					<tbody>
+						<tr>
+							<th scope="row">Jobs</th>
+							{#each [0, 1, 2, 3, 4] as s}
+								<td style:background="var(--heat-{s})" style:color="var(--heat-{s}-fg)" class:most={s === 4}>{[0, 2, 5, 9, 14][s]}</td>
+							{/each}
+						</tr>
+						<tr>
+							<th scope="row">Ratio</th>
+							{#each [0, 1, 2, 3, 4] as s}
+								<td class="num small">{r(now[`heat-${s}-fg`].colour, now[`heat-${s}`].colour).toFixed(2)}</td>
+							{/each}
+						</tr>
+					</tbody>
+				</table>
 			</div>
 			<div class="card">
 				<h3>Rows and labels</h3>
@@ -340,6 +370,39 @@
 		border-radius: var(--radius);
 		background: var(--warn-bg);
 		color: var(--warn-fg);
+	}
+	.alert {
+		margin: 0;
+		border: var(--border-width-strong) solid var(--alert-edge);
+	}
+	.alert a {
+		color: inherit;
+	}
+	.alert-stage {
+		margin-top: var(--space-sm);
+		padding: var(--space-md);
+		background: var(--bg);
+		border-radius: var(--radius);
+	}
+	.alert-stage.on-card {
+		background: var(--surface);
+		border: var(--border-width) solid var(--border);
+	}
+	.heat {
+		width: auto;
+	}
+	.heat td,
+	.heat th {
+		min-width: var(--heat-cell);
+		padding: var(--space-3xs) var(--space-xs);
+		text-align: center;
+	}
+	.heat tbody th {
+		text-align: left;
+		color: var(--muted);
+	}
+	.heat td.most {
+		font-weight: var(--weight-strong);
 	}
 	.live {
 		display: inline-block;

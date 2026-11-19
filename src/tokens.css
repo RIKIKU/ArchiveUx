@@ -16,7 +16,8 @@
    scripts/check-contrast.mjs (known findings: contrast/findings.json).
 
    Moved from PagerArchive's web/src/app.css (main at 6dfa1f0) with names and
-   values unchanged. The map's tokens (--map-*, --detail-map-width,
+   values unchanged; 0.1.0 then added --alert-edge and --heat-0-fg..
+   --heat-4-fg (the owner's decisions of 2026-11-20). The map's tokens (--map-*, --detail-map-width,
    --area-tag-*) stay in PagerArchive. References such as R77b, M24 or
    ADR 0015 in the comments are PagerArchive's SPEC.md and docs/adr. */
 
@@ -264,6 +265,14 @@
 	--heat-2: color-mix(in srgb, var(--accent) 20%, var(--surface));
 	--heat-3: color-mix(in srgb, var(--accent) 32%, var(--surface));
 	--heat-4: color-mix(in srgb, var(--accent) 45%, var(--surface));
+	/* The count written in each heat shade (owner, 2026-11-20): --muted on
+	   none, --fg on the rest; each at least 4.5:1, measured in every look and
+	   theme (contrast/pairs.json, heat-0-text..heat-4-text). */
+	--heat-0-fg: var(--muted);
+	--heat-1-fg: var(--fg);
+	--heat-2-fg: var(--fg);
+	--heat-3-fg: var(--fg);
+	--heat-4-fg: var(--fg);
 	/* R77b: the "New release" notice, lifted off the page, at most this wide.
 	   Its fill is --highlight; its amber edge and countdown line are at least
 	   4.5:1 against --bg (and 3:1 against --surface, where the landing's ring
@@ -272,6 +281,13 @@
 	--notice-width: 22rem;
 	--notice-edge: light-dark(#8a5a00, #e0a526);
 	--notice-countdown-height: 0.1875rem;
+	/* An alert that stays (an admin's backup or upgrade alert): fill
+	   --warn-bg, text --warn-fg and, being must-notice, a
+	   --border-width-strong edge at least 4.5:1 against --bg (owner,
+	   2026-11-20). The notice's amber, so everything that asks to be noticed
+	   wears the same edge; a token of its own, so alerts can part from the
+	   release notice without touching it. */
+	--alert-edge: var(--notice-edge);
 }
 
 /* Console (ADR 0015's second prototype, built in M15, R82d; ADR 0028): ink
@@ -488,6 +504,15 @@
 	--heat-2: color-mix(in srgb, var(--accent) 20%, var(--surface));
 	--heat-3: color-mix(in srgb, var(--accent) 32%, var(--surface));
 	--heat-4: color-mix(in srgb, var(--accent) 45%, var(--surface));
+	/* The count written in each heat shade (owner, 2026-11-20): --muted on
+	   none, --fg on the rest; but in dark the busiest shade is mostly the
+	   light ink accent, so its count is dark ink, the accent's own text
+	   --accent-fg (4.54:1; --fg is 3.55:1 there, and --bg 4.43:1). */
+	--heat-0-fg: var(--muted);
+	--heat-1-fg: var(--fg);
+	--heat-2-fg: var(--fg);
+	--heat-3-fg: var(--fg);
+	--heat-4-fg: light-dark(var(--fg), var(--accent-fg));
 	/* R77b: the "New release" notice, lifted off the page, at most this wide.
 	   Its fill is --highlight; its amber edge and countdown line are at least
 	   4.5:1 against --bg (and 3:1 against --surface, where the landing's ring
@@ -496,6 +521,8 @@
 	--notice-width: 22rem;
 	--notice-edge: light-dark(#8a5a00, #e0a526);
 	--notice-countdown-height: 0.1875rem;
+	/* An alert that stays (an admin's backup or upgrade alert): as Harbour's. */
+	--alert-edge: var(--notice-edge);
 }
 
 @media (pointer: coarse) {
