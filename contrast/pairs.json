@@ -1,0 +1,69 @@
+{
+  "$comment": "Every pairing the rules allow (docs/design-system.md), checked in both looks and both themes by scripts/check-contrast.mjs. fg is drawn on each token in on. kind sets the floor. A token in on that is transparent is measured on each of transparentOn instead (a transparent row is drawn on the page or on a card). when: the pair counts only if that token is not the value given. skipIfTransparent: the pair counts only if fg is not transparent in that look.",
+  "floors": {
+    "text": 4.5,
+    "edge": 3,
+    "notice": 4.5
+  },
+  "transparentOn": ["bg", "surface"],
+  "pairs": [
+    { "id": "text", "what": "Text", "fg": "fg", "on": ["bg", "surface", "surface-2", "hover", "highlight", "accent-soft"], "kind": "text" },
+    { "id": "muted", "what": "Secondary text", "fg": "muted", "on": ["bg", "surface", "surface-2", "hover"], "kind": "text" },
+    { "id": "link", "what": "Links", "fg": "accent", "on": ["bg", "surface", "surface-2", "highlight"], "kind": "text" },
+    { "id": "button", "what": "Primary button text", "fg": "accent-fg", "on": ["accent", "accent-hover", "accent-pressed"], "kind": "text" },
+    { "id": "current", "what": "Current page, pressed button", "fg": "accent-soft-fg", "on": ["accent-soft"], "kind": "text" },
+    { "id": "danger-button", "what": "Danger button text", "fg": "danger-fg", "on": ["danger", "danger-hover"], "kind": "text" },
+    { "id": "error", "what": "Error text", "fg": "danger-text", "on": ["bg", "surface", "surface-2"], "kind": "text" },
+    { "id": "tooltip", "what": "Tooltip", "fg": "bg", "on": ["fg"], "kind": "text" },
+    { "id": "warn", "what": "Warnings, caveats and flags", "fg": "warn-fg", "on": ["warn-bg"], "kind": "text" },
+    { "id": "heartbeat", "what": "Heartbeat label", "fg": "heartbeat-fg", "on": ["bg", "surface"], "kind": "text" },
+    { "id": "chart-text", "what": "Chart labels and values", "fg": "chart-text", "on": ["bg", "surface"], "kind": "text" },
+    { "id": "chart-muted", "what": "Chart secondary labels", "fg": "chart-muted", "on": ["bg", "surface"], "kind": "text" },
+    { "id": "heat-zero", "what": "Count written in an empty heat cell", "fg": "muted", "on": ["heat-0"], "kind": "text" },
+    { "id": "heat-text", "what": "Count written in a heat cell", "fg": "fg", "on": ["heat-1", "heat-2", "heat-3", "heat-4"], "kind": "text" },
+    { "id": "print", "what": "Printed sheet", "fg": "print-fg", "on": ["print-bg"], "kind": "text" },
+
+    { "id": "focus", "what": "Focus ring", "fg": "focus", "on": ["bg", "surface", "surface-2", "highlight"], "kind": "edge" },
+    { "id": "control-border", "what": "Control borders", "fg": "control-border", "on": ["bg", "surface", "surface-2"], "kind": "edge" },
+    { "id": "switch-on", "what": "Switch on, checkbox ticked", "fg": "accent", "on": ["surface-2"], "kind": "edge" },
+    { "id": "live", "what": "Live dot", "fg": "ok-fg", "on": ["bg", "surface"], "kind": "edge" },
+    { "id": "chart-fill", "what": "Chart bars", "fg": "chart-fill", "on": ["bg", "surface"], "kind": "edge" },
+    { "id": "chart-previous", "what": "Chart: the previous period's bar", "fg": "chart-previous", "on": ["bg", "surface"], "kind": "edge" },
+    { "id": "notice-countdown", "what": "Notice countdown line on the notice", "fg": "notice-edge", "on": ["highlight"], "kind": "edge" },
+    { "id": "landing-ring", "what": "Release landing ring on the side menu or bottom bar", "fg": "notice-edge", "on": ["surface"], "kind": "edge" },
+
+    { "id": "notice-edge", "what": "Notice edge against the page", "fg": "notice-edge", "on": ["bg"], "kind": "notice" },
+    { "id": "alert-edge", "what": "Alert (warn-bg, no edge of its own) against the page", "fg": "warn-bg", "on": ["bg"], "kind": "notice" },
+
+    { "id": "emergency-label", "what": "Emergency label", "fg": "emergency-badge-fg", "on": ["emergency-badge-bg"], "kind": "text" },
+    { "id": "emergency-row-text", "what": "Text on an Emergency row", "fg": "fg", "on": ["emergency-row", "emergency-row-hover"], "kind": "text" },
+    { "id": "emergency-row-muted", "what": "Secondary text on an Emergency row", "fg": "muted", "on": ["emergency-row", "emergency-row-hover"], "kind": "text" },
+    { "id": "emergency-row-link", "what": "Links on an Emergency row", "fg": "accent", "on": ["emergency-row", "emergency-row-hover"], "kind": "text" },
+    { "id": "emergency-mark", "what": "Emergency colour as a mark", "fg": "emergency-bg", "on": ["bg", "surface"], "kind": "edge" },
+    { "id": "emergency-edge", "what": "Emergency row edge", "fg": "emergency-edge", "on": ["emergency-row", "emergency-row-hover"], "kind": "edge", "skipIfTransparent": true },
+    { "id": "emergency-dot", "what": "Emergency label dot", "fg": "emergency-dot", "on": ["emergency-badge-bg"], "kind": "edge", "when": { "token": "badge-dot", "isNot": "none" } },
+    { "id": "emergency-label-border", "what": "Emergency label border", "fg": "emergency-badge-border", "on": ["emergency-row", "emergency-row-hover"], "kind": "edge", "skipIfTransparent": true },
+
+    { "id": "nonemergency-label", "what": "Non-emergency label", "fg": "nonemergency-badge-fg", "on": ["nonemergency-badge-bg"], "kind": "text" },
+    { "id": "nonemergency-row-text", "what": "Text on a Non-emergency row", "fg": "fg", "on": ["nonemergency-row", "nonemergency-row-hover"], "kind": "text" },
+    { "id": "nonemergency-row-muted", "what": "Secondary text on a Non-emergency row", "fg": "muted", "on": ["nonemergency-row", "nonemergency-row-hover"], "kind": "text" },
+    { "id": "nonemergency-row-link", "what": "Links on a Non-emergency row", "fg": "accent", "on": ["nonemergency-row", "nonemergency-row-hover"], "kind": "text" },
+    { "id": "nonemergency-mark", "what": "Non-emergency colour as a mark", "fg": "nonemergency-bg", "on": ["bg", "surface"], "kind": "edge" },
+    { "id": "nonemergency-edge", "what": "Non-emergency row edge", "fg": "nonemergency-edge", "on": ["nonemergency-row", "nonemergency-row-hover"], "kind": "edge", "skipIfTransparent": true },
+    { "id": "nonemergency-dot", "what": "Non-emergency label dot", "fg": "nonemergency-dot", "on": ["nonemergency-badge-bg"], "kind": "edge", "when": { "token": "badge-dot", "isNot": "none" } },
+    { "id": "nonemergency-label-border", "what": "Non-emergency label border", "fg": "nonemergency-badge-border", "on": ["nonemergency-row", "nonemergency-row-hover"], "kind": "edge", "skipIfTransparent": true },
+
+    { "id": "admin-label", "what": "Admin label", "fg": "admin-badge-fg", "on": ["admin-badge-bg"], "kind": "text" },
+    { "id": "admin-row-text", "what": "Text on an Admin row", "fg": "fg", "on": ["admin-row", "admin-row-hover"], "kind": "text" },
+    { "id": "admin-row-muted", "what": "Secondary text on an Admin row", "fg": "muted", "on": ["admin-row", "admin-row-hover"], "kind": "text" },
+    { "id": "admin-row-link", "what": "Links on an Admin row", "fg": "accent", "on": ["admin-row", "admin-row-hover"], "kind": "text" },
+    { "id": "admin-mark", "what": "Admin colour as a mark", "fg": "admin-bg", "on": ["bg", "surface"], "kind": "edge" },
+    { "id": "admin-edge", "what": "Admin row edge", "fg": "admin-edge", "on": ["admin-row", "admin-row-hover"], "kind": "edge", "skipIfTransparent": true },
+    { "id": "admin-dot", "what": "Admin label dot", "fg": "admin-dot", "on": ["admin-badge-bg"], "kind": "edge", "when": { "token": "badge-dot", "isNot": "none" } },
+    { "id": "admin-label-border", "what": "Admin label border", "fg": "admin-badge-border", "on": ["admin-row", "admin-row-hover"], "kind": "edge", "skipIfTransparent": true },
+
+    { "id": "plain-row-text", "what": "Text on a plain row", "fg": "fg", "on": ["plain-row", "plain-row-hover"], "kind": "text" },
+    { "id": "plain-row-muted", "what": "Secondary text on a plain row", "fg": "muted", "on": ["plain-row", "plain-row-hover"], "kind": "text" },
+    { "id": "plain-row-link", "what": "Links on a plain row", "fg": "accent", "on": ["plain-row", "plain-row-hover"], "kind": "text" }
+  ]
+}
