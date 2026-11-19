@@ -1,0 +1,41 @@
+{
+  "name": "archiveux",
+  "version": "0.1.0",
+  "description": "The shared design system of the archive apps: tokens, base styles, rules and a WCAG AA contrast check.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RIKIKU/ArchiveUx.git"
+  },
+  "files": [
+    "src",
+    "contrast",
+    "docs",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": "./src/archiveux.css",
+    "./archiveux.css": "./src/archiveux.css",
+    "./tokens.css": "./src/tokens.css",
+    "./base.css": "./src/base.css",
+    "./contrast/pairs.json": "./contrast/pairs.json",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "check": "node scripts/check-tokens.mjs && node scripts/check-contrast.mjs",
+    "check:tokens": "node scripts/check-tokens.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "gallery": "vite",
+    "build:gallery": "vite build"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "svelte": "^5.58.0",
+    "vite": "^8.3.8"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
