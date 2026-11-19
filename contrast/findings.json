@@ -1,10 +1,4 @@
 {
-  "$comment": "Pairs the current tokens fail, found when ArchiveUx was set up (stage 1, 2026-11-19). Each is a FINDING for the owner: the look is the owner's, so values are not changed until the owner decides. The check reports these and does not fail on them; it fails on any other failure, and on an entry here that no longer fails. When the owner decides, change the token (or the pattern) and take the entry off.",
-  "findings": [
-    { "look": "harbour", "theme": "light", "pair": "alert-edge", "fg": "warn-bg", "on": "bg", "ratio": 1.09, "note": "Alerts (an admin's backup and upgrade alerts) are a warn-bg fill with no edge; a must-notice element needs an edge of 4.5:1 against the page." },
-    { "look": "harbour", "theme": "dark", "pair": "alert-edge", "fg": "warn-bg", "on": "bg", "ratio": 1.48, "note": "As above." },
-    { "look": "console", "theme": "light", "pair": "alert-edge", "fg": "warn-bg", "on": "bg", "ratio": 1.12, "note": "As above." },
-    { "look": "console", "theme": "dark", "pair": "alert-edge", "fg": "warn-bg", "on": "bg", "ratio": 1.34, "note": "As above." },
-    { "look": "console", "theme": "dark", "pair": "heat-text", "fg": "fg", "on": "heat-4", "ratio": 3.55, "note": "Console's dark accent is light, so the heat grid's shades lighten towards the text colour: the busiest cell's count is 3.55:1." }
-  ]
+  "$comment": "Pairs the current tokens fail that the owner hasn't decided on yet. Each is a FINDING for the owner: the look is the owner's, so values are not changed until the owner decides. The check reports these and does not fail on them; it fails on any other failure, and on an entry here that no longer fails. When the owner decides, change the token (or the pattern) and take the entry off. Stage 1's five findings (alerts without an edge, Console dark's busiest heat cell) were decided on 2026-11-20 and fixed in 0.1.0 (--alert-edge, --heat-0-fg..--heat-4-fg).",
+  "findings": []
 }
