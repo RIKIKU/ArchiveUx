@@ -155,7 +155,7 @@
 			</div>
 			<div class="card">
 				<h3>Alerts</h3>
-				<p class="muted small">An alert that stays (an admin's backup or upgrade alert) is must-notice: --warn-fg on --warn-bg, with a --border-width-strong --alert-edge, at least 4.5:1 against the page.</p>
+				<p class="muted small">An alert that stays (an admin's backup or upgrade alert): --warn-fg on --warn-bg, with no edge (the owner, 0.1.1). It is noticed by its place and its wording; its text is at least 4.5:1.</p>
 				<div class="alert-stage">
 					<p class="alert">The last backup is 3 days old. <a href="#top">See the backups</a></p>
 				</div>
@@ -373,7 +373,6 @@
 	}
 	.alert {
 		margin: 0;
-		border: var(--border-width-strong) solid var(--alert-edge);
 	}
 	.alert a {
 		color: inherit;

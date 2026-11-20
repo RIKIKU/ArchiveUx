@@ -1,6 +1,6 @@
 {
   "name": "archiveux",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The shared design system of the archive apps: tokens, base styles, rules and a WCAG AA contrast check.",
   "license": "MIT",
   "type": "module",
