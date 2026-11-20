@@ -46,13 +46,14 @@ Example:
 | Token | Purpose | On | Kind |
 |---|---|---|---|
 | `--fg` | Body text | `--bg`, `--surface`, `--surface-2`, `--hover`, `--highlight`, `--accent-soft`, plain and priority rows | text |
-| `--muted` | Secondary text: times, hints, headings of groups | `--bg`, `--surface`, `--surface-2`, `--hover`, rows | text |
+| `--muted` | Secondary text: times, hints, headings of groups; a field's required marker and hint (section 5) | `--bg`, `--surface`, `--surface-2`, `--hover`, rows | text |
 | `--accent` | Links; the selected row's ring | `--bg`, `--surface`, `--surface-2`, `--highlight`, rows | text |
 | `--accent` | A switch that's on, a ticked box | `--surface-2` | edge |
 | `--accent-fg` | Primary button text | `--accent`, `--accent-hover`, `--accent-pressed` | text |
 | `--accent-soft-fg` | The current page in a menu, a pressed secondary button | `--accent-soft` | text |
 | `--danger-fg` | Danger button text | `--danger`, `--danger-hover` | text |
-| `--danger-text` | Error messages | `--bg`, `--surface`, `--surface-2` | text |
+| `--danger-text` | Error messages; a field's error under it (section 5) | `--bg`, `--surface`, `--surface-2` | text |
+| `--danger` | An invalid control's border (`aria-invalid`, section 5) | `--bg`, `--surface`, `--surface-2` | edge |
 | `--warn-fg` | Warnings, caveats, flags | `--warn-bg` | text |
 | `--ok-fg` | The Live dot | `--bg`, `--surface` | edge |
 | `--heartbeat-fg` | A heartbeat page's label | `--bg`, `--surface` | text |
@@ -165,6 +166,58 @@ Example: a new toast drawn as `--surface-2` on `--bg` with no edge would be adde
 - A visible hover, a focus ring (`--focus-width` in `--focus`, `--focus-offset` out, from `:focus-visible` in `base.css`), and a pressed state; only the press moves (`--press-shift`), and not with reduced motion.
 - Icons are hidden from assistive technology and never stand alone: a label or a tooltip with the same accessible name.
 
-## 5. Gallery
+## 5. Forms
 
-`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice), and the other tokens' values, for the look and theme chosen at the top. Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.
+Decided (owner, 2026-11-20): "at the moment there's no way to know what you must fill out." "The word required, every form. This should probably be a part of our design system." **The** rule for every form in every app that uses ArchiveUx (ADR 0001, decision 14). The classes are in `base.css`; the gallery has a working form.
+
+1. **Every required field says `required` in its label**, as muted text after the label's own text: `Name · required`. It is the **word**, never an asterisk, and it is part of the label's accessible name. **Unmarked means optional**: never write "(optional)".
+   - Markup: `<label for="name">Name <span class="required">required</span></label>`. `.required` is `--muted`, `--text-sm`, normal weight, and draws the `·` before it as decoration (no text for assistive technology), so the name reads "Name required".
+   - The control keeps the native `required` attribute (it gives `aria-required` and the browser's validity state).
+2. **A conditional field says when it is required**, in the same marker: `Secret · required: none saved yet` (a secret already saved needn't be entered again), `Header value · needed with a header name`. When the condition is false, the field shows as **optional** (no marker), and its `required` attribute is off: the attribute follows the condition, so the browser's validity state and the label always agree.
+3. **A rule over a group goes in a hint under the group**, not on each field: `<fieldset class="field-group" aria-describedby="pages-hint"><legend>Pages</legend><p class="field-hint" id="pages-hint">Choose at least one capcode or alias.</p>…</fieldset>`. The group's legend takes `required` the same way when the group as a whole must be filled. A field's own hint is a `.field-hint` under it, linked from the control with `aria-describedby`.
+4. **On save, each problem shows under its own field**, and **focus moves to the first problem**:
+   - the control gets `aria-invalid="true"` and `aria-describedby` naming a `.field-error` under it that says what to do ("Give it a name."), in words; the border turns `--danger` (from `aria-invalid` only, never `:invalid`, so an untouched empty field isn't red);
+   - a group's problem goes in its own `.field-error` under the group, the fieldset gets `aria-describedby` to it (with the hint), and focus goes to its first control;
+   - the message at the top **only summarises**: "2 fields need attention" (`.error`, `aria-live="polite"`), never repeating each problem;
+   - a problem clears when the field is fixed and saved again (or as it is fixed, if the app checks as you type; either way the message and `aria-invalid` go together).
+5. **The app's own messages replace the browser's bubbles**: the form has `novalidate`, keeps `required` (and `type`, `min`, `pattern`…) on its controls, and on submit runs its own check, which reads each control's `validity` and adds the app's own rules (a group, a condition, what the server says). Why not keep the native bubbles: they show one problem at a time, at the browser's place and in its words, can't be styled to the look or measured, vanish on their own, and can't say a group's or a condition's rule, so a form would mix two kinds of message. With `novalidate` the attributes still give `aria-required`, `:required` and `checkValidity()`, so there is one source of truth and one kind of message. A problem the server finds is shown the same way, under its field.
+
+Classes (all from existing tokens; no new token):
+
+| Class | What | Tokens | Pair (`pairs.json`) |
+|---|---|---|---|
+| `.field` | A field: label, control, hint, error, stacked | `--space-2xs` apart, `--space-lg` below | |
+| `.required` | The marker in the label | `--muted`, `--text-sm`, `--weight-normal` | `field-required`: text on `--bg`, `--surface`, `--surface-2` |
+| `.field-hint` | A hint under a field or a group | `--muted`, `--text-sm` | `field-hint`: text on `--bg`, `--surface`, `--surface-2` |
+| `.field-error` | A field's or group's problem | `--danger-text`, `--text-sm`, `--weight-strong` | `field-error`: text on `--bg`, `--surface`, `--surface-2` |
+| `[aria-invalid='true']` | An invalid input, select or textarea | border and inner ring `--danger`, `--border-width` | `field-invalid`: edge on `--bg`, `--surface`, `--surface-2` |
+| `.field-group` | A fieldset with a legend | no border or padding; legend `--weight-strong` | |
+
+Measured (lowest of `--bg`, `--surface`, `--surface-2`): the marker and hints 6.65 / 7.30 (Harbour light / dark), 6.70 / 7.17 (Console); the error 7.45 / 9.52 and 6.07 / 7.26; the invalid border 6.13 / 6.93 and 6.07 / 6.75.
+
+Example:
+
+```html
+<form novalidate>
+  <p class="error" aria-live="polite">2 fields need attention</p>
+  <div class="field">
+    <label for="name">Name <span class="required">required</span></label>
+    <input id="name" required aria-invalid="true" aria-describedby="name-error" />
+    <p class="field-error" id="name-error">Give it a name.</p>
+  </div>
+  <div class="field">
+    <label for="note">Note</label>
+    <input id="note" />
+  </div>
+  <div class="field">
+    <label for="secret">Secret <span class="required">required: none saved yet</span></label>
+    <input id="secret" type="password" required />
+  </div>
+</form>
+```
+
+Bad: `Name *`, `Note (optional)`, a red border with no words, a top message listing every problem, the browser's bubble beside a message of the app's own.
+
+## 6. Gallery
+
+`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice, a working form), and the other tokens' values, for the look and theme chosen at the top. Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.

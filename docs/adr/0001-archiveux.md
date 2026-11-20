@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (owner, 2026-11-19). Stage 1 built on the branch `stage-1`; its findings decided by the owner on 2026-11-20 (decisions 8-12) and fixed in 0.1.0. Decision 8 (the alert edge) reversed by the owner after the 0.1.0 demo, the same day (decision 13), in 0.1.1.
+Accepted (owner, 2026-11-19). Stage 1 built on the branch `stage-1`; its findings decided by the owner on 2026-11-20 (decisions 8-12) and fixed in 0.1.0. Decision 8 (the alert edge) reversed by the owner after the 0.1.0 demo, the same day (decision 13), in 0.1.1. Required fields made a rule of the design system (decision 14), in 0.2.0.
 
 ## Context
 
@@ -41,6 +41,20 @@ Stage 1 reported five findings and three calls the agent had made; the owner dec
 Having seen PagerArchive's backup and upgrade alerts with 0.1.0's edge: "The amber edge is very intense. I prefer it without." Done in 0.1.1:
 
 13. **Admin alerts are the `--warn-bg` fill only, with no edge**, as before 0.1.0; decision 8 is reversed and `--alert-edge` is removed. They are noticed by their place and their wording, not their outline, so they are no longer must-notice elements (decision 4's edge rule still holds for notices, toasts and anything that appears on its own). The floor still holds for their text (4.5:1, the `warn` pair) and for controls (3:1). The fill isn't an edge, so, like `--border` dividers (decision 11), it isn't measured against the page: `contrast/pairs.json` drops the alert-edge pairs and `contrast/findings.json` stays empty.
+
+## Decided for every form (the owner's, 2026-11-20)
+
+Looking at PagerArchive's integrations: "I think it would be good to show which fields are required on the integrations. at the moment there's no way to know what you must fill out." Then: "The word required, every form. This should probably be a part of our design system." And: "might as well start it now". Done in 0.2.0:
+
+14. **Required fields are marked with the word, in every form of every app** (`docs/design-system.md`, section 5):
+    1. every required field says "required" in its label, as muted text after the label ("Name · required"): the word, not an asterisk, and part of the label's accessible name; unmarked means optional, so no "(optional)";
+    2. a conditional field says when it is required ("required: none saved yet", "needed with a header name"), and shows as optional when the condition is false;
+    3. a rule over a group is a hint under the group ("Choose at least one capcode or alias"), linked with `aria-describedby`;
+    4. on save, each problem shows under its own field (`aria-invalid` and `aria-describedby` to the message), focus moves to the first problem, and the top message only summarises ("2 fields need attention"). The native `required` stays.
+
+    The agent's call, which the owner left open (the cleanest way to replace the browser's bubbles): **`novalidate` on the form, the app's own check on submit**, reading each control's `validity` and adding the app's own rules. The native bubbles show one problem at a time in the browser's words and place, can't follow the look or be measured, and can't say a group's or a condition's rule, so keeping them would mix two kinds of message; with `novalidate`, `required` still gives `aria-required` and `checkValidity()`, so the attributes stay the one source of truth. A conditional field's `required` follows its condition.
+
+    Built from existing tokens only, so no new token: the marker and hints are `--muted`, the error `--danger-text`, an invalid control's border `--danger` (`.required`, `.field-hint`, `.field-error`, `[aria-invalid='true']`, with `.field` and `.field-group` for layout, in `base.css`). Measured on `--bg`, `--surface` and `--surface-2` in every look and theme (`field-required`, `field-hint`, `field-error` at 4.5:1, `field-invalid` at 3:1, in `pairs.json`): the lowest is 6.07:1, and `contrast/findings.json` stays empty. No components move (`docs/components-plan.md` is separate).
 
 ## Releasing
 

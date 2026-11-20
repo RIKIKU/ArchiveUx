@@ -79,6 +79,28 @@
 	});
 	const failing = $derived(measured.filter((m) => !m.pass));
 
+	// The form demo (docs/design-system.md, section 5): the word "required" in
+	// the label, a conditional field, a group's hint, and the app's own check
+	// on save (novalidate), each problem under its field and focus to the first.
+	let form = $state({ name: '', note: '', headerName: '', headerValue: '', secret: '', capcode: false, alias: false });
+	let problems = $state({});
+	let summary = $state('');
+	const headerNeeded = $derived(form.headerName.trim() !== '');
+	const describe = (...ids) => ids.filter(Boolean).join(' ') || undefined;
+	function save(e) {
+		e.preventDefault();
+		const p = {};
+		if (!form.name.trim()) p.name = 'Give it a name.';
+		if (!form.secret) p.secret = 'Enter the secret: none is saved yet.';
+		if (headerNeeded && !form.headerValue.trim()) p.headerValue = 'Give the header a value, or clear its name.';
+		if (!form.capcode && !form.alias) p.pages = 'Choose at least one capcode or alias.';
+		problems = p;
+		const n = Object.keys(p).length;
+		summary = n ? `${n} ${n === 1 ? 'field needs' : 'fields need'} attention` : 'Saved (a demo: nothing is sent).';
+		const first = ['name', 'secret', 'headerValue', 'pages'].find((k) => p[k]);
+		if (first) requestAnimationFrame(() => document.getElementById(first === 'pages' ? 'g-capcode' : `g-${first}`)?.focus());
+	}
+
 	// The notice demo: the release notice's timing (docs/design-system.md).
 	const HOLD = 8000;
 	let shown = $state(true);
@@ -195,6 +217,74 @@
 					</div>
 				{/each}
 				<div class="row plain fresh-demo"><span class="time">13:42:00</span> A new row, on --highlight</div>
+			</div>
+			<div class="card">
+				<h3>Forms</h3>
+				<p class="muted small">
+					The word "required" in the label (part of its name); unmarked is optional. A conditional field says when. A group's rule is a hint under it. Save with gaps: each problem under its field, focus to the first, the top
+					line only counts.
+				</p>
+				<form class="demo-form" novalidate onsubmit={save}>
+					{#if summary}<p class={Object.keys(problems).length ? 'error' : 'ok'} aria-live="polite">{summary}</p>{/if}
+					<div class="field">
+						<label for="g-name">Name <span class="required">required</span></label>
+						<input id="g-name" required bind:value={form.name} aria-invalid={problems.name ? 'true' : undefined} aria-describedby={describe(problems.name && 'g-name-error')} />
+						{#if problems.name}<p class="field-error" id="g-name-error">{problems.name}</p>{/if}
+					</div>
+					<div class="field">
+						<label for="g-note">Note</label>
+						<input id="g-note" bind:value={form.note} aria-describedby="g-note-hint" />
+						<p class="field-hint" id="g-note-hint">Optional, so unmarked: no "(optional)".</p>
+					</div>
+					<div class="field">
+						<label for="g-secret">Secret <span class="required">required: none saved yet</span></label>
+						<input
+							id="g-secret"
+							type="password"
+							autocomplete="off"
+							required
+							bind:value={form.secret}
+							aria-invalid={problems.secret ? 'true' : undefined}
+							aria-describedby={describe(problems.secret && 'g-secret-error')}
+						/>
+						{#if problems.secret}<p class="field-error" id="g-secret-error">{problems.secret}</p>{/if}
+					</div>
+					<div class="field">
+						<label for="g-secret-saved">Secret, when one is saved</label>
+						<input id="g-secret-saved" type="password" autocomplete="off" placeholder="••••••••" aria-describedby="g-secret-saved-hint" />
+						<p class="field-hint" id="g-secret-saved-hint">One is saved. Leave this empty to keep it.</p>
+					</div>
+					<div class="field">
+						<label for="g-headerName">Header name</label>
+						<input id="g-headerName" bind:value={form.headerName} aria-describedby="g-headerName-hint" />
+						<p class="field-hint" id="g-headerName-hint">Type one, and the value below becomes required.</p>
+					</div>
+					<div class="field">
+						<label for="g-headerValue">Header value {#if headerNeeded}<span class="required">needed with a header name</span>{/if}</label>
+						<input
+							id="g-headerValue"
+							required={headerNeeded}
+							bind:value={form.headerValue}
+							aria-invalid={problems.headerValue ? 'true' : undefined}
+							aria-describedby={describe(problems.headerValue && 'g-headerValue-error')}
+						/>
+						{#if problems.headerValue}<p class="field-error" id="g-headerValue-error">{problems.headerValue}</p>{/if}
+					</div>
+					<fieldset class="field-group" aria-describedby={describe('g-pages-hint', problems.pages && 'g-pages-error')}>
+						<legend>Pages</legend>
+						<p class="field-hint" id="g-pages-hint">Choose at least one capcode or alias.</p>
+						<label class="check"><input id="g-capcode" type="checkbox" bind:checked={form.capcode} /> Capcode 1234567</label>
+						<label class="check"><input type="checkbox" bind:checked={form.alias} /> Alias Station 1</label>
+						{#if problems.pages}<p class="field-error" id="g-pages-error">{problems.pages}</p>{/if}
+					</fieldset>
+					<button type="submit">Save</button>
+				</form>
+				<p class="muted small">A field in error, as after a save:</p>
+				<div class="field">
+					<label for="g-port">Port <span class="required">required</span></label>
+					<input id="g-port" value="80a" aria-invalid="true" aria-describedby="g-port-error" />
+					<p class="field-error" id="g-port-error">A port is a number from 1 to 65535.</p>
+				</div>
 			</div>
 			<div class="card">
 				<h3>Notice</h3>
@@ -343,6 +433,10 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--space-xs);
+	}
+	.field-group .check {
+		display: flex;
+		min-height: var(--target);
 	}
 	.muted {
 		color: var(--muted);
