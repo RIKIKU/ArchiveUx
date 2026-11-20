@@ -2,6 +2,16 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.2.0
+
+Required fields, a rule for every form (the owner, 2026-11-20: "The word required, every form. This should probably be a part of our design system."; ADR 0001, decision 14).
+
+- **Rules** (`docs/design-system.md`, new section 5, Forms; the Gallery is now section 6): every required field says "required" in its label (the word, not an asterisk, part of the accessible name), and unmarked means optional, so drop every "(optional)"; a conditional field says when ("required: none saved yet") and shows as optional otherwise; a group's rule is a hint under the group, linked with `aria-describedby`; on save, each problem under its own field (`aria-invalid`, `aria-describedby`), focus to the first, and a top message that only summarises. Forms use `novalidate` and the app's own check, keeping `required` on the controls.
+- **New classes** (`archiveux/base.css`): `.field`, `.required`, `.field-hint`, `.field-error`, `.field-group`, and a `--danger` border on any input, select or textarea with `aria-invalid="true"`. An app that marks fields today should move to these and take its own "(optional)" text and asterisks off.
+- **No new tokens**: the classes use `--muted`, `--danger-text` and `--danger`. Every existing token is unchanged, so nothing that looks the same today looks different.
+- **Contrast check**: new pairs `field-required`, `field-hint`, `field-error` (text, 4.5:1) and `field-invalid` (edge, 3:1), each on `--bg`, `--surface` and `--surface-2` in both looks and both themes; the lowest is 6.07:1. `contrast/findings.json` stays empty.
+- **Gallery**: a working form with a required field, an optional one, a conditional one in both states, a group hint and a field in error.
+
 ## 0.1.1
 
 The owner's decision after seeing 0.1.0's alert edge in PagerArchive (2026-11-20): "The amber edge is very intense. I prefer it without." (ADR 0001, decision 13).
