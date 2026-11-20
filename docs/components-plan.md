@@ -49,5 +49,5 @@ Within batch (a), `Menu`, `BottomBar`, `GroupPage`, `AccountMenu` (and, in (b), 
 | `InviteTree` | PagerArchive's invite tree |
 | `AddToAlbum`, `AlbumNote` | Albums of pages |
 | `PrintTick` | The print sheet |
-| `BackupAlert`, `UpgradeAlert` | PagerArchive's operations alerts; their *look* is the rules' Alerts pattern (`--alert-edge`, from 0.1.0) |
+| `BackupAlert`, `UpgradeAlert` | PagerArchive's operations alerts; their *look* is the rules' Alerts pattern (the `--warn-bg` fill, no edge: 0.1.1) |
 | `ReportPage` | PagerArchive's report filters and API |

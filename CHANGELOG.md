@@ -2,7 +2,17 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
-## 0.1.0 (unreleased)
+## 0.1.1
+
+The owner's decision after seeing 0.1.0's alert edge in PagerArchive (2026-11-20): "The amber edge is very intense. I prefer it without." (ADR 0001, decision 13).
+
+- **Removed `--alert-edge`** (both looks, both themes). An admin alert that stays (backup, upgrade) is the `--warn-bg` fill with `--warn-fg` text only, **no edge**, as before 0.1.0: it is noticed by its place and its wording, and it is no longer a must-notice element. An app that draws a border in `var(--alert-edge)` **must** take that border off: the token no longer exists.
+- **Rules** (`docs/design-system.md`, sections 3 and 4): must-notice elements are notices, toasts and anything that appears on its own; admin alerts are not. Text stays at 4.5:1 and controls at 3:1.
+- **Contrast check**: the `alert-edge` and `alert-edge-card` pairs are gone. The fill isn't an edge, so it isn't measured against the page (like `--border` dividers); `contrast/findings.json` stays empty and the check passes.
+- **Gallery**: the alert is drawn without an edge.
+- Every other token is unchanged from 0.1.0 (the heat-grid text tokens stay).
+
+## 0.1.0
 
 The first release: stage 1 (ADR 0001), with stage 1's findings fixed as the owner decided on 2026-11-20 (ADR 0001, decisions 8-12).
 

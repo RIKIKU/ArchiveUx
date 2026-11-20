@@ -36,8 +36,6 @@
     { "id": "landing-ring", "what": "Release landing ring on the side menu or bottom bar", "fg": "notice-edge", "on": ["surface"], "kind": "edge" },
 
     { "id": "notice-edge", "what": "Notice edge against the page", "fg": "notice-edge", "on": ["bg"], "kind": "notice" },
-    { "id": "alert-edge", "what": "Alert edge against the page", "fg": "alert-edge", "on": ["bg"], "kind": "notice" },
-    { "id": "alert-edge-card", "what": "Alert edge on a card", "fg": "alert-edge", "on": ["surface"], "kind": "edge" },
 
     { "id": "emergency-label", "what": "Emergency label", "fg": "emergency-badge-fg", "on": ["emergency-badge-bg"], "kind": "text" },
     { "id": "emergency-row-text", "what": "Text on an Emergency row", "fg": "fg", "on": ["emergency-row", "emergency-row-hover"], "kind": "text" },

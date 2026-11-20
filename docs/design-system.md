@@ -60,7 +60,6 @@ Example:
 | `--control-border` | Borders of inputs, outlined buttons, popovers | `--bg`, `--surface`, `--surface-2` | edge |
 | `--border` | Dividers between rows and around cards. **Decoration only**: it may never be the only thing that shows a control, its boundary or its state (WCAG 1.4.11 doesn't apply to it, so it isn't measured). | any surface | none |
 | `--notice-edge` | A notice's edge and countdown line; the release landing's ring | edge on `--bg` (notice); line on `--highlight` (edge); ring on `--surface` (edge) | notice / edge |
-| `--alert-edge` | The edge of an alert that stays (an admin's backup or upgrade alert) | `--bg` (notice); `--surface` (edge) | notice / edge |
 | `--heat-0-fg`..`--heat-4-fg` | The count written in each heat shade (see Charts) | its own step, `--heat-0`..`--heat-4` | text |
 | `--print-fg` | A printed sheet's text and rules | `--print-bg` | text |
 
@@ -71,7 +70,7 @@ Example:
 | `--accent`, `--accent-hover`, `--accent-pressed` | `--accent-fg` | Primary button, its hover and press |
 | `--accent-soft` | `--accent-soft-fg`, or `--fg` (`.ok`) | Current page, pressed, a saved message |
 | `--danger`, `--danger-hover` | `--danger-fg` | Danger button |
-| `--warn-bg` | `--warn-fg` | Warnings, caveats, alerts (an alert also has an `--alert-edge`: section 4) |
+| `--warn-bg` | `--warn-fg` | Warnings, caveats, alerts (an alert is the fill only, no edge: section 4) |
 | `--fg` | `--bg` | Tooltip |
 | `--heat-N` (N = 0..4) | `--heat-N-fg`, its own step's | A heat grid's cells, none to most |
 
@@ -114,7 +113,8 @@ WCAG 2.1 AA, in both looks and both themes, for every app:
 
 - **Text** at least **4.5:1** against its own background (1.4.3). Large text gets no discount here.
 - **Edges and controls** at least **3:1** (1.4.11): focus rings, control borders, the marks that carry meaning (priority edges and dots, chart bars, the Live dot, a switch that's on).
-- **Must-notice elements** (notices, toasts, alerts, anything that appears on its own) have an **edge of at least 4.5:1 against the page** (`--bg`). Their fill may be close to the page; the edge carries it. Example: the release notice is `--highlight` (about 1.8:1 against the dark page) with a 2 px `--notice-edge` (8.37:1). An admin's alerts that stay (backup, upgrade) are must-notice too (owner, 2026-11-20): `--warn-bg` (1.09-1.48:1 against the page) with a 2 px `--alert-edge`.
+- **Must-notice elements** (notices, toasts, anything that appears on its own) have an **edge of at least 4.5:1 against the page** (`--bg`). Their fill may be close to the page; the edge carries it. Example: the release notice is `--highlight` (about 1.8:1 against the dark page) with a 2 px `--notice-edge` (8.37:1).
+- **An admin's alerts that stay (backup, upgrade) are not must-notice** (the owner, 2026-11-20, after seeing 0.1.0's alert edge: "The amber edge is very intense. I prefer it without."). They are the `--warn-bg` fill only, with no edge, as before 0.1.0: they are noticed by their place and their wording, not their outline. Their text still meets 4.5:1 (`warn` in `pairs.json`); the fill isn't an edge, so, like a `--border` divider, it isn't measured against the page. Don't give them an edge.
 - Exempt, as in WCAG: disabled controls, `--border` dividers (decided by the owner, 2026-11-20: decoration, not measured), decoration, logos.
 
 `npm run check:contrast` (in CI) resolves every token for both looks and both themes and measures every pairing in `contrast/pairs.json`. A pairing below its floor fails CI unless it is a **known finding** in `contrast/findings.json`: a failure the owner hasn't decided on yet. Findings are never fixed by quietly changing a value: the look is the owner's. Report them; when the owner decides, change the value and take the finding off (the check fails while a fixed finding is still listed).
@@ -137,9 +137,8 @@ Example: a new toast drawn as `--surface-2` on `--bg` with no edge would be adde
 
 ### Alerts
 
-- Alerts that stay (an admin's backup or upgrade alert) are not toasts and have no timing, but they are must-notice (owner, 2026-11-20).
-- Look: fill `--warn-bg`, text and links `--warn-fg`, a `--border-width-strong` edge in `--alert-edge`, `--radius`, padded `--space-sm` `--space-md`. The fill is unchanged from before 0.1.0; the edge carries it.
-- `--alert-edge` is its own token with the notice's amber as its value (`var(--notice-edge)`): everything that asks to be noticed wears the same edge, so the user learns one signal, and amber sits with the amber `--warn-bg` fill as one element. A token of its own, because an alert's purpose (something an admin must act on) differs from the release notice's (something new), so either can change without the other. Against the page: Harbour light 5.56, Harbour dark 8.37, Console light 5.93, Console dark 8.40; on a card (`--surface`) 5.93, 7.70, 5.24, 7.77.
+- Alerts that stay (an admin's backup or upgrade alert) are not toasts and have no timing, and they are not must-notice (section 3): they are noticed by where they sit and what they say.
+- Look: fill `--warn-bg`, text and links `--warn-fg`, `--radius`, padded `--space-sm` `--space-md`, and **no edge** (the owner, 2026-11-20: "The amber edge is very intense. I prefer it without."). 0.1.0 gave them a `--border-width-strong` amber `--alert-edge`; 0.1.1 took the edge and the token off.
 ### Page rows
 
 - A row is a list item across the list's width: `--row-pad-y` top and bottom, `--row-pad-x` at the start, `--row-pad-end` at the end, a `--border-width` `--border` divider below.

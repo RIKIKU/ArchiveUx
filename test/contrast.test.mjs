@@ -39,16 +39,14 @@ test("the approved release notice passes on its edge (PR #88's measured numbers)
 	assert.equal(at('console', 'dark'), '8.40');
 });
 
-test('alerts: the old edgeless --warn-bg fails against the page; --alert-edge passes (owner, 2026-11-20)', () => {
-	const old = measure(tokens, { ...spec, pairs: [{ id: 'old-alert', what: 'edgeless alert', fg: 'warn-bg', on: ['bg'], kind: 'notice' }] });
-	assert.equal(old.length, 4);
-	assert.ok(old.every((m) => !m.pass && m.ratio < 1.5));
-	const r = measure(tokens, { ...spec, pairs: spec.pairs.filter((p) => p.id === 'alert-edge') });
-	const at = (look, theme) => r.find((m) => m.look === look && m.theme === theme).ratio.toFixed(2);
-	assert.equal(at('harbour', 'light'), '5.56');
-	assert.equal(at('harbour', 'dark'), '8.37');
-	assert.equal(at('console', 'light'), '5.93');
-	assert.equal(at('console', 'dark'), '8.40');
+test('alerts: the --warn-bg fill only, no edge and no --alert-edge; their text still passes (owner, 2026-11-20, 0.1.1)', () => {
+	// "The amber edge is very intense. I prefer it without." The fill isn't an
+	// edge, so no pair measures it against the page.
+	for (const look of ['harbour', 'console']) assert.equal(tokensOf(tokens, look).has('alert-edge'), false, look);
+	assert.deepEqual(spec.pairs.filter((p) => p.fg === 'alert-edge' || p.fg === 'warn-bg' || p.id.startsWith('alert')), []);
+	const r = measure(tokens, { ...spec, pairs: spec.pairs.filter((p) => p.id === 'warn') });
+	assert.equal(r.length, 4);
+	assert.ok(r.every((m) => m.pass && m.ratio >= 4.5), r.map((m) => `${m.look} ${m.theme} ${m.ratio}`).join(', '));
 });
 
 test('heat grid: every step has its own text token, each at least 4.5:1 in every look and theme', () => {
