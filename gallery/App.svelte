@@ -221,7 +221,7 @@
 			<div class="card">
 				<h3>Forms</h3>
 				<p class="muted small">
-					The word "required" in the label (part of its name); unmarked is optional. A conditional field says when. A group's rule is a hint under it. Save with gaps: each problem under its field, focus to the first, the top
+					An outlined Required tag in the label (part of its name: "Name required"); unmarked is optional. A conditional field says when, after its tag. A group's rule is a hint under it. Save with gaps: each problem under its field, focus to the first, the top
 					line only counts.
 				</p>
 				<form class="demo-form" novalidate onsubmit={save}>
@@ -237,7 +237,7 @@
 						<p class="field-hint" id="g-note-hint">Optional, so unmarked: no "(optional)".</p>
 					</div>
 					<div class="field">
-						<label for="g-secret">Secret <span class="required">required: none saved yet</span></label>
+						<label for="g-secret">Secret <span class="required">required</span> <span class="required-when">none saved yet</span></label>
 						<input
 							id="g-secret"
 							type="password"
@@ -260,7 +260,7 @@
 						<p class="field-hint" id="g-headerName-hint">Type one, and the value below becomes required.</p>
 					</div>
 					<div class="field">
-						<label for="g-headerValue">Header value {#if headerNeeded}<span class="required">needed with a header name</span>{/if}</label>
+						<label for="g-headerValue">Header value {#if headerNeeded}<span class="required">required</span> <span class="required-when">with a header name</span>{/if}</label>
 						<input
 							id="g-headerValue"
 							required={headerNeeded}

@@ -248,11 +248,14 @@ table {
      </div>
 
    The word "required" is in the label, so it is part of the accessible
-   name; an unmarked field is optional. A conditional field says when, in the
-   same marker ("required: none saved yet"). The marker and hints are --muted,
-   the error --danger-text, each at least 4.5:1 on --bg, --surface and
-   --surface-2 (field-required, field-hint, field-error in pairs.json); an
-   invalid control's border is --danger, at least 3:1 (field-invalid). */
+   name; an unmarked field is optional. A conditional field says when, after
+   its tag: <span class="required">required</span> <span
+   class="required-when">none saved yet</span>. The tag is --accent (0.2.1),
+   the hints and the "when" --muted, the error --danger-text, each at least
+   4.5:1 on --bg, --surface and --surface-2 (required-tag, field-hint,
+   field-error in pairs.json); the tag's outline is at least 3:1
+   (required-tag-edge), and so is an invalid control's --danger border
+   (field-invalid). */
 .field {
 	display: flex;
 	flex-direction: column;
@@ -261,17 +264,33 @@ table {
 	min-width: 0;
 }
 
-/* The marker after the label's text. The dot before it is decoration: the
-   second content value gives it no text for assistive technology, so the
-   name reads "Name required". */
+/* The marker after the label's text: an outlined "Required" tag in the
+   accent (owner, 2026-11-20, option "B"; 0.2.1). The markup says
+   "required", so the name reads "Name required"; the tag shows it with a
+   capital. Text and outline are --accent, at least 4.5:1 and 3:1 on --bg,
+   --surface and --surface-2 (required-tag, required-tag-edge). */
 .required {
+	display: inline-block;
+	padding: 0 var(--space-xs);
+	border: var(--border-width) solid var(--accent);
+	border-radius: var(--radius-small);
+	color: var(--accent);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-strong);
+	line-height: var(--leading-tight);
+	vertical-align: baseline;
+	white-space: nowrap;
+}
+.required::first-letter {
+	text-transform: uppercase;
+}
+
+/* When a conditional field is required, in words after its tag:
+   "Required none saved yet", "Required with a header name". */
+.required-when {
 	color: var(--muted);
 	font-size: var(--text-sm);
 	font-weight: var(--weight-normal);
-}
-.required::before {
-	content: '· ';
-	content: '· ' / '';
 }
 
 /* A hint under a field, or under a group's legend (the fieldset or group
