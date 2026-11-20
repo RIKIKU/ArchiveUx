@@ -2,6 +2,15 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.2.1
+
+The owner tried 0.2.0's grey "· required" and found it easy to miss: "there's no way to know which fields are mandatory before you hit save." Their pick was "B", an outlined Required tag (ADR 0001, decision 14, amended).
+
+- **`.required` is now an outlined tag**: `--accent` text and a `--border-width` `--accent` outline, `--radius-small`, `--text-sm`, `--weight-strong`, reading "Required". The markup still says `required`, so accessible names don't change ("Name required"). The decorative dot is gone.
+- **New `.required-when`**: a conditional field says when in muted words after its tag, `<span class="required">required</span> <span class="required-when">none saved yet</span>`. An app that put the condition inside `.required` ("required: none saved yet", "needed with a header name") **should** move it out, so the tag is the same everywhere.
+- **Contrast check**: `field-required` is replaced by `required-tag` (text, 4.5:1), `required-tag-edge` (outline, 3:1) and `required-when` (text), each on `--bg`, `--surface` and `--surface-2`. The lowest is 6.16:1 for the tag and 6.65:1 for the words. `contrast/findings.json` stays empty.
+- **Rules** (section 5) and the **gallery** show the tag, including the conditional cases. No token changes.
+
 ## 0.2.0
 
 Required fields, a rule for every form (the owner, 2026-11-20: "The word required, every form. This should probably be a part of our design system."; ADR 0001, decision 14).
