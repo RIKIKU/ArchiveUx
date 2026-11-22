@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (owner, 2026-11-19). Stage 1 built on the branch `stage-1`; its findings decided by the owner on 2026-11-20 (decisions 8-12) and fixed in 0.1.0. Decision 8 (the alert edge) reversed by the owner after the 0.1.0 demo, the same day (decision 13), in 0.1.1. Required fields made a rule of the design system (decision 14), in 0.2.0.
+Accepted (owner, 2026-11-19). Stage 1 built on the branch `stage-1`; its findings decided by the owner on 2026-11-20 (decisions 8-12) and fixed in 0.1.0. Decision 8 (the alert edge) reversed by the owner after the 0.1.0 demo, the same day (decision 13), in 0.1.1. Required fields made a rule of the design system (decision 14), in 0.2.0; its marker made an outlined Required tag after the 0.2.0 demo, the same day (decision 14, amended), in 0.2.1.
 
 ## Context
 
@@ -55,6 +55,8 @@ Looking at PagerArchive's integrations: "I think it would be good to show which 
     The agent's call, which the owner left open (the cleanest way to replace the browser's bubbles): **`novalidate` on the form, the app's own check on submit**, reading each control's `validity` and adding the app's own rules. The native bubbles show one problem at a time in the browser's words and place, can't follow the look or be measured, and can't say a group's or a condition's rule, so keeping them would mix two kinds of message; with `novalidate`, `required` still gives `aria-required` and `checkValidity()`, so the attributes stay the one source of truth. A conditional field's `required` follows its condition.
 
     Built from existing tokens only, so no new token: the marker and hints are `--muted`, the error `--danger-text`, an invalid control's border `--danger` (`.required`, `.field-hint`, `.field-error`, `[aria-invalid='true']`, with `.field` and `.field-group` for layout, in `base.css`). Measured on `--bg`, `--surface` and `--surface-2` in every look and theme (`field-required`, `field-hint`, `field-error` at 4.5:1, `field-invalid` at 3:1, in `pairs.json`): the lowest is 6.07:1, and `contrast/findings.json` stays empty. No components move (`docs/components-plan.md` is separate).
+
+    **Amended after the 0.2.0 demo (the owner's, 2026-11-20; 0.2.1).** The owner tried PagerArchive's forms with 0.2.0's muted "· required": "there's no way to know which fields are mandatory before you hit save. It's not a good user experience to hit an error after you save it." The markers were there, but small grey text after the label was easy to miss. Shown the options, the owner picked **"B"**: a small outlined **Required** tag after the label, in the accent colour. So `.required` is now an outlined tag. Its text and its `--border-width` outline are `--accent`, with `--radius-small`, `--space-xs` padding at the sides, `--text-sm` and `--weight-strong`, on the label's baseline. The decorative dot is gone. The markup still says `required`, so the name still reads "Name required", and the tag shows a capital. A conditional field keeps the same tag and says when in muted words after it, in a new `.required-when` ("none saved yet", "with a header name"), so the tag looks the same on every required field. `pairs.json` replaces `field-required` with `required-tag` (text, 4.5:1), `required-tag-edge` (outline, 3:1) and `required-when` (text). The lowest tag ratio is 6.16:1 (Harbour light), and `contrast/findings.json` stays empty.
 
 ## Releasing
 

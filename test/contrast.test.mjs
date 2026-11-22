@@ -59,19 +59,27 @@ test('heat grid: every step has its own text token, each at least 4.5:1 in every
 	assert.equal(resolve(tokensOf(tokens, 'console'), 'heat-4-fg', 'light'), resolve(tokensOf(tokens, 'console'), 'fg', 'light'));
 });
 
-test('forms: the required marker, hints and errors are 4.5:1 and the invalid border 3:1 on the page, a card and a panel, everywhere (owner, 2026-11-20, 0.2.0)', () => {
-	const ids = ['field-required', 'field-hint', 'field-error', 'field-invalid'];
+test('forms: the Required tag, hints and errors are 4.5:1, the tag outline and invalid border 3:1, on the page, a card and a panel, everywhere (owner, 2026-11-20; tag "B", 0.2.1)', () => {
+	const ids = ['required-tag', 'required-when', 'field-hint', 'field-error', 'required-tag-edge', 'field-invalid'];
 	const r = measure(tokens, { ...spec, pairs: spec.pairs.filter((p) => ids.includes(p.id)) });
-	// Four pairs, three backgrounds each, two looks, two themes.
+	// Six pairs, three backgrounds each, two looks, two themes.
 	assert.equal(r.length, ids.length * 3 * 4);
 	for (const m of r) {
 		assert.ok(['bg', 'surface', 'surface-2'].includes(m.on), m.on);
-		assert.equal(m.min, m.pair === 'field-invalid' ? 3 : 4.5, m.pair);
+		assert.equal(m.min, m.pair === 'field-invalid' || m.pair === 'required-tag-edge' ? 3 : 4.5, m.pair);
 		assert.ok(m.pass, `${m.look} ${m.theme} ${m.pair} on --${m.on}: ${m.ratio}`);
 	}
-	// Built from existing tokens: --muted for the marker and hints, --danger-text for the error, --danger for the border.
+	// Built from existing tokens: --accent for the tag, --muted for the hints, --danger-text for the error, --danger for the border.
 	const fg = Object.fromEntries(spec.pairs.filter((p) => ids.includes(p.id)).map((p) => [p.id, p.fg]));
-	assert.deepEqual(fg, { 'field-required': 'muted', 'field-hint': 'muted', 'field-error': 'danger-text', 'field-invalid': 'danger' });
+	assert.deepEqual(fg, {
+		'required-tag': 'accent',
+		'required-when': 'muted',
+		'field-hint': 'muted',
+		'field-error': 'danger-text',
+		'required-tag-edge': 'accent',
+		'field-invalid': 'danger'
+	});
+	assert.equal(spec.pairs.some((p) => p.id === 'field-required'), false, 'the grey marker of 0.2.0 is gone');
 });
 
 test('a finding that no longer fails is stale', () => {
