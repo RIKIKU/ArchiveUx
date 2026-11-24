@@ -128,6 +128,7 @@
 			>Theme <select bind:value={theme}><option value="auto">Auto (system)</option><option value="light">Light</option><option value="dark">Dark</option></select></label
 		>
 		<a href="./frame.html?look={look}{theme === 'auto' ? '' : `&theme=${theme}`}">The frame: menu, bottom bar, account menu, app switcher, dock</a>
+		<a href="./search.html?look={look}{theme === 'auto' ? '' : `&theme=${theme}`}">Search controls: the range calendar (with and without times) and suggestions</a>
 	</div>
 	<p class="status">
 		{look === 'console' ? 'Console' : 'Harbour'}, {scheme}: {measured.length} pairings measured, {measured.length - failing.length} pass,

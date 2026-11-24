@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (owner, 2026-11-24: issue #6, items 1-6, approved for 0.3.0; RadioArchive's M2 waits for the release). Item 7 (`DateRange` with times of day) is left for later. The agent's calls below (decisions 7-13) are open to the owner's review after the 0.3.0 demo, as decisions 8-12 of ADR 0001 were.
+Accepted (owner, 2026-11-24: issue #6, items 1-6, approved for 0.3.0; RadioArchive's M2 waits for the release). Item 7 (`DateRange` with times of day) followed in 0.4.0 (ADR 0003). The agent's calls below (decisions 7-13) are open to the owner's review after the 0.3.0 demo, as decisions 8-12 of ADR 0001 were.
 
 ## Context
 

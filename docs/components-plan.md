@@ -1,6 +1,6 @@
 # Components plan
 
-PagerArchive's `web/src/lib` components (main at 6dfa1f0), sorted into generic UI that moves to ArchiveUx and app-specific ones that stay. **0.3.0 moved most of batch (a)** for RadioArchive (ADR 0002): `Menu`, `BottomBar`, `AccountMenu` and `Icon`, with three new parts of the frame, `Frame`, `AppSwitcher` and `LiveBadge`; `GroupPage` and `ReleaseNotice` are still to move. PagerArchive still draws its own copies until it adopts them. What moves, and in what order, is the owner's decision of 2026-11-20 (ADR 0001, decision 12).
+PagerArchive's `web/src/lib` components (main at 6dfa1f0), sorted into generic UI that moves to ArchiveUx and app-specific ones that stay. **0.3.0 moved most of batch (a)** for RadioArchive (ADR 0002): `Menu`, `BottomBar`, `AccountMenu` and `Icon`, with three new parts of the frame, `Frame`, `AppSwitcher` and `LiveBadge`; `GroupPage` and `ReleaseNotice` are still to move. **0.4.0 moved `Suggest` and `DateRange`** from batch (b), for RadioArchive's search of recent calls, with times of day added to `DateRange` (ADR 0003); `SearchBox` (PagerArchive's query language) is still to move. PagerArchive still draws its own copies until it adopts them. What moves, and in what order, is the owner's decision of 2026-11-20 (ADR 0001, decision 12).
 
 What moving one takes: its styles already use only tokens (PagerArchive R82c), but most import app modules (`api.ts`, `nav.ts`, `menu.svelte.ts`, `release.ts`). A component moves when those become props or callbacks, so ArchiveUx never calls an app's API. "Needs" lists what has to be cut loose.
 
@@ -11,7 +11,7 @@ Four batches, each its own ArchiveUx release and PagerArchive bump, in this orde
 | Batch | Components |
 |---|---|
 | (a) | `Menu`, `BottomBar` and `GroupPage`; `AccountMenu`; `Icon`; `ReleaseNotice` (0.3.0: all but `GroupPage` and `ReleaseNotice`, with the new `Frame`, `AppSwitcher` and `LiveBadge`) |
-| (b) | `SearchBox`, `Suggest` and `DateRange` |
+| (b) | `SearchBox`, `Suggest` and `DateRange` (0.4.0: `Suggest` and `DateRange`, with times of day) |
 | (c) | `BarChart` and `ColumnChart` |
 | (d) | `Crumbs`, `PriorityBadge` and `Scrubber` |
 
@@ -38,8 +38,8 @@ Parts of the frame that neither app had, made for RadioArchive (RIKIKU/ArchiveUx
 | `Icon` | An icon from the compiled set, hidden from assistive technology | `icons.ts` (Tabler subset) moves with it; each app adds its own meanings | (a), **moved in 0.3.0**: the frame's icons by name; an app's own as `svg` |
 | `ReleaseNotice` | The "New release" notice: 8 s, countdown line, waits while held, tap or Esc closes, flies into its target | `api.releaseSeen()` and `releaseHref()` become props (version, link); `menu.shrunk` a prop | (a) |
 | `SearchBox` | One search box, Help, the dates and Clear all | `search.ts`, `searchValues.ts` (PagerArchive's query language) become props; uses Suggest and DateRange | (b) |
-| `Suggest` | An ARIA combobox with suggestions | `search.ts`'s suggest becomes a prop (a function returning suggestions) | (b) |
-| `DateRange` | The range calendar (From/To, preview bar) | `format.ts`'s date helpers move with it | (b) |
+| `Suggest` | An ARIA combobox with suggestions | `search.ts`'s suggest becomes a prop (a function returning suggestions) | (b), **moved in 0.4.0**: `suggest(text, caret)` is a prop; a value may come without a key |
+| `DateRange` | The range calendar (From/To, preview bar); times of day, opt-in (0.4.0) | `format.ts`'s date helpers move with it | (b), **moved in 0.4.0**: `isoDate` is in `archiveux/dates.js`, with `rangeBounds`; `times` adds From and To times (ADR 0003) |
 | `BarChart`, `ColumnChart` | Simple SVG charts with values written beside the marks | `chartImage.ts` moves with them | (c) |
 | `Crumbs` | Breadcrumbs from the menu's tree | `nav.ts`'s tree becomes a prop (a shared nav type) | (d) |
 | `PriorityBadge` | A priority in words, with its dot or outline from the tokens | `api.ts`'s `Message` type becomes a priority prop | (d) |

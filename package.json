@@ -1,6 +1,6 @@
 {
   "name": "archiveux",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "The shared design system of the archive apps: tokens, base styles, rules, a WCAG AA contrast check, and the frame's Svelte components.",
   "license": "MIT",
   "type": "module",
@@ -21,6 +21,7 @@
     "./base.css": "./src/base.css",
     "./look.js": "./src/look.js",
     "./live.js": "./src/live.js",
+    "./dates.js": "./src/dates.js",
     "./components": {
       "svelte": "./src/components/index.js",
       "default": "./src/components/index.js"

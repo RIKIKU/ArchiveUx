@@ -11,4 +11,6 @@ export { default as AccountMenu } from './AccountMenu.svelte';
 export { default as AppSwitcher } from './AppSwitcher.svelte';
 export { default as LiveBadge } from './LiveBadge.svelte';
 export { default as Icon } from './Icon.svelte';
+export { default as DateRange } from './DateRange.svelte';
+export { default as Suggest } from './Suggest.svelte';
 export { icons, iconNames } from './icons.js';

@@ -1,4 +1,4 @@
-// The frame's shared types, for apps that check their JavaScript or
+// The components' shared types, for apps that check their JavaScript or
 // TypeScript (JSDoc only; nothing runs here).
 
 /**
@@ -44,6 +44,26 @@
 /**
  * Who's signed in, or null for nobody.
  * @typedef {{ name?: string, email?: string } | null} Account
+ */
+
+/**
+ * One suggestion in Suggest's list (0.4.0). text: search for the words as
+ * typed ("Search text: …"). key: a filter key, put in the box as "key:" (an
+ * app with a query language, as PagerArchive's). value: put in the box as
+ * insert, in place of the word it was suggested for; with a key it shows as
+ * "key:" and the rest of insert, without one as value. section: its heading
+ * in the list.
+ * @typedef {{ kind: 'text', id: string, text: string }
+ *   | { kind: 'key', id: string, key: string, hint: string, section?: string }
+ *   | { kind: 'value', id: string, key?: string, value: string, insert: string, section?: string }} Suggestion
+ */
+
+/**
+ * What an app's suggest(text, caret) gives Suggest.
+ * @typedef {object} Suggestions
+ * @property {{ start: number, end: number }} [target] the word the suggestions replace (its place in the text); none for keys at the cursor
+ * @property {Suggestion[]} options
+ * @property {string} what what the options are, for the count announced: 'suggestion' ("3 suggestions"), 'filter key'
  */
 
 export {};

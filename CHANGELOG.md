@@ -2,6 +2,22 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.4.0
+
+What RadioArchive needs from ArchiveUx to search recent calls (#6, item 7, approved by the owner on 2026-11-24; ADR 0003): `DateRange` with times of day, and `Suggest`. Both move from PagerArchive (batch (b) of `docs/components-plan.md`); `SearchBox` is still to move.
+
+**Nothing changes for an app that doesn't opt in** (PagerArchive): no token and no rule in `base.css` changes, and the new components, module and icons have names no app imports yet. Moving from 0.3.0 needs no change in the app. Without `times`, `DateRange` draws what PagerArchive's draws today.
+
+- **`DateRange`** (`archiveux/components`): the range calendar, moved from PagerArchive (main at e1a0b6a) with its markup, styles, keys and words as they are. Props `from`, `to` (`YYYY-MM-DD`), `timeZone`, `firstPage`, `lastPage`, `onchange(from, to)`; hidden fields `from` and `to`.
+- **Times of day, opt-in**: `times` draws a From time and a To time (native time fields, `HH:MM`) under the days, usable once a day is picked; `fromTime` and `toTime` set them. An empty time is the whole day, and To includes its whole minute. On one day, a To time before the From time is swapped on closing. Enter in a time closes the calendar. The button says them ("23 Nov 21:30 – 24 Nov 06:15", "21 Nov until 16:30"); the form also gets `from_time` and `to_time`; `onchange(from, to, fromTime, toTime)`. **Without `times`, nothing of this is drawn.**
+- **`archiveux/dates.js`** (new): `isoDate` (moved from PagerArchive's `format.ts`), `zonedInstant`, and `rangeBounds({ from, to, fromTime, toTime }, timeZone)`, the UTC instants a range covers (end excluded), across daylight saving.
+- **`Suggest`** (`archiveux/components`): the ARIA combobox, moved from PagerArchive as it is, with `search.ts`'s suggest as the `suggest(text, caret)` prop and its types in `types.js` (`Suggestion`, `Suggestions`). New: a value may come without a key, and shows as its `value` (RadioArchive's talkgroups); a value with a key draws as before.
+- **Icons**: `calendar`, `previous` and `next`, from PagerArchive's set.
+- **Rules** (section 4, new "Dates" and "Suggestions"), the components plan and ADR 0003.
+- **Contrast check**: new pairs `calendar-day`, `calendar-muted`, `calendar-picked`, `calendar-picked-cell`, `calendar-focus`, `calendar-today`, `calendar-hover-ring`, `calendar-time`, `suggest-option`, `suggest-muted`, `suggest-active`, `suggest-edge` and `suggest-focus`, all from existing tokens; 768 measurements, all passing (the lowest 3.19, today's ring on the range bar, Harbour light). `contrast/findings.json` stays empty.
+- **Gallery**: a third page, `search.html`, with `DateRange` without and with times, each in a form whose fields it shows, and `Suggest`.
+- **Tests**: `DateRange` and `Suggest` rendered on the server (no time fields without `times`; the labels and fields with them), and `dates.js`, including Melbourne's daylight-saving days.
+
 ## 0.3.0
 
 What RadioArchive needs from ArchiveUx (#6, items 1-6, approved by the owner on 2026-11-24; ADR 0002). Item 7, `DateRange` with times of day, comes later.

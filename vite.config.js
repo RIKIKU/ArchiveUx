@@ -1,7 +1,7 @@
 // The gallery (docs/design-system.md, "Gallery"): `npm run gallery` serves it,
-// `npm run build:gallery` builds it into dist-gallery for GitHub Pages. Two
-// pages: index.html (tokens, pairings, samples) and frame.html (the frame,
-// 0.3.0).
+// `npm run build:gallery` builds it into dist-gallery for GitHub Pages. Three
+// pages: index.html (tokens, pairings, samples), frame.html (the frame,
+// 0.3.0) and search.html (DateRange with and without times, and Suggest, 0.4.0).
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +16,6 @@ export default defineConfig({
 	build: {
 		outDir: '../dist-gallery',
 		emptyOutDir: true,
-		rollupOptions: { input: { index: page('index.html'), frame: page('frame.html') } }
+		rollupOptions: { input: { index: page('index.html'), frame: page('frame.html'), search: page('search.html') } }
 	}
 });
