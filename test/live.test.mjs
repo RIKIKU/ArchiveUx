@@ -2,12 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LIVE_WITHIN, liveBadge, shortDuration } from '../src/live.js';
 
-test('Live within 2 s of the live edge', () => {
-	assert.equal(LIVE_WITHIN, 2);
+test('Live within 5 s of the live edge', () => {
+	assert.equal(LIVE_WITHIN, 5);
 	assert.deepEqual(liveBadge(), { state: 'live', text: 'Live' });
-	assert.deepEqual(liveBadge({ behind: 1.9 }), { state: 'live', text: 'Live' });
+	assert.deepEqual(liveBadge({ behind: 4.9 }), { state: 'live', text: 'Live' });
 	assert.deepEqual(liveBadge({ behind: Number.NaN }), { state: 'live', text: 'Live' });
-	assert.deepEqual(liveBadge({ behind: 2 }), { state: 'behind', text: 'Behind by 2 s' });
+	assert.deepEqual(liveBadge({ behind: 2 }), { state: 'live', text: 'Live' });
+	assert.deepEqual(liveBadge({ behind: 5 }), { state: 'behind', text: 'Behind by 5 s' });
 });
 
 test('behind by N s, then minutes and hours, in whole seconds', () => {

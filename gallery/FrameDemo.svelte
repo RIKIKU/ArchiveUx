@@ -12,6 +12,7 @@
 	import Icon from '../src/components/Icon.svelte';
 	import LiveBadge from '../src/components/LiveBadge.svelte';
 	import { applyLook, isLook } from '../src/look.js';
+	import { LIVE_WITHIN } from '../src/live.js';
 
 	const q = new URLSearchParams(location.search);
 	const flag = (k, d) => (q.has(k) ? q.get(k) !== '0' : d);
@@ -154,7 +155,7 @@
 	<div class="controls">
 		<button type="button" class="secondary icon-button" aria-label={playing ? 'Pause' : 'Play'} onclick={() => (playing = !playing)}><Icon name={playing ? 'pause' : 'play'} /></button>
 		<button type="button" class="secondary icon-button" aria-label="Skip"><Icon name="skip" /></button>
-		{#if behind >= 2}<button type="button" class="secondary" onclick={() => (behind = 0)}>Jump to live</button>{/if}
+		{#if behind >= LIVE_WITHIN}<button type="button" class="secondary" onclick={() => (behind = 0)}>Jump to live</button>{/if}
 	</div>
 {/snippet}
 

@@ -9,8 +9,9 @@
 // Draw it as <span class="live-badge" data-state={state}>{text}</span>
 // (base.css). No dependencies.
 
-/** Within this many seconds of the live edge, playback is Live. */
-export const LIVE_WITHIN = 2;
+/** Within this many seconds of the live edge, playback is Live: 5 s, the
+ * owner's pick of 2026-11-25 (ADR 0002, decision 13). */
+export const LIVE_WITHIN = 5;
 
 /**
  * "12 s", "1 min 5 s", "2 min", "1 h 4 min": a duration in whole seconds, the

@@ -198,7 +198,7 @@ From PagerArchive's; 0.3.0 makes it **work signed out** (ADR 0002), because an a
 
 | State | When | Look | Pairs |
 |---|---|---|---|
-| `live` | within 2 s of the live edge (`LIVE_WITHIN`) | a filled `--ok-fg` dot (`--pulse-size`), "Live" in `--fg`, `--weight-strong` | `live`, `live-text` |
+| `live` | within 5 s of the live edge (`LIVE_WITHIN`) | a filled `--ok-fg` dot (`--pulse-size`), "Live" in `--fg`, `--weight-strong` | `live`, `live-text` |
 | `behind` | further behind | a hollow ring, `--border-width-strong` `--muted`, "Behind by 12 s" in `--muted` (then "1 min 35 s", "1 h 4 min") | `behind-ring`, `behind-text` |
 | `delayed` | a delay an admin set, however close | no dot, "Delayed 5 min" in `--warn-fg` on a `--warn-bg` fill, `--radius-badge` | `delayed-text` |
 
