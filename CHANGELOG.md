@@ -2,6 +2,24 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.3.0
+
+What RadioArchive needs from ArchiveUx (#6, items 1-6, approved by the owner on 2026-11-24; ADR 0002). Item 7, `DateRange` with times of day, comes later.
+
+**Nothing changes for an app that doesn't opt in** (PagerArchive): every existing token keeps its value in both looks and both themes, every existing class is unchanged, and the new tokens, classes and components have names no app uses yet. Moving from 0.2.1 needs no change in the app.
+
+- **The frame, as Svelte 5 components** (`archiveux/components`; Svelte is an optional peer dependency). `Frame`, the shell, takes each part as a snippet: the side menu, the top bar's start and tools, the account menu, the bottom bar, notices, and the page. Moved from PagerArchive with their app modules cut loose: `Menu` (the tree, current page, counts, open groups and shrinking as props), `BottomBar` (three entries and More), `AccountMenu` (callbacks for saving the look, signing in and out) and `Icon` (the frame's icons by name; an app's own as `svg`). `GroupPage` and `ReleaseNotice` are still to move (`docs/components-plan.md`).
+- **App switcher**: `Frame`'s `otherApp: { name, href }` draws a link to the other app, by name, in the top bar before the account menu, opening it in the same tab ("Switch to PagerArchive"). **None by default**: without `otherApp`, no switcher.
+- **Dock**: `Frame`'s `dock` snippet (and `dockLabel`) draws a bar the app fills, `--surface` with a `--border` line above, at least the new **`--dock-height`** (4.5rem Harbour, 4rem Console). Phones: fixed above the bottom bar, across the width. Desktops: along the foot of the content beside the side menu, as wide as the content, shrunk or not. **None by default.** New pairs `dock-text`, `dock-muted`, `dock-link`, `dock-control`, `dock-focus`.
+- **Notices above the dock**: new `.notice-place` (base.css) places a notice beside the menu and above the dock, from two new tokens the frame sets on its root, **`--frame-menu-width`** and **`--dock-offset`**. Outside a frame they are `--menu-width` and none, which is where a notice sits today (rules, section 4).
+- **`AccountMenu` signed out** (`account: null`): Sign in (a link or a callback), "Not signed in", and the colour theme and look still choosable; no Sign out. New pair `account-signin`.
+- **The look's first paint** (rules, section 1, rule 7): the server writes `data-look` on `<html>` from the parent-domain cookie the app names (combined deployment), else the app's own setting, else Harbour. **`archiveux/look.js`**: `pickLook`, `lookFromCookies`, `lookCookie` (`Domain`, `Path=/`, a year, `SameSite=Lax`, `Secure`), `lookAttribute`, `applyLook`.
+- **LED colours**: eight new tokens, **`--led-red`, `--led-orange`, `--led-yellow`, `--led-green`, `--led-cyan`, `--led-blue`, `--led-purple`, `--led-pink`**, the same in both looks, and `--led-size`; drawn as `<span class="led" data-led="red" aria-hidden="true">` beside a name, never alone. Measured as edges on `--bg`, `--surface` and `--hover` in every look and theme (`led-*`); the lowest is 4.12:1.
+- **Live badge**: `.live-badge[data-state=live|behind|delayed]` (base.css), `LiveBadge`, and **`archiveux/live.js`**'s `liveBadge({ behind, delay })` for the words: "Live" (the `--ok-fg` dot, `--fg`), "Behind by 12 s" (a hollow `--muted` ring, `--muted`), "Delayed 5 min" (`--warn-fg` on `--warn-bg`). Live is within 2 s. New pairs `live-text`, `behind-text`, `behind-ring`, `delayed-text`; and `app-switcher`.
+- **Contrast check**: 676 measurements across the looks and themes, all passing; `contrast/findings.json` stays empty.
+- **Gallery**: a second page, `frame.html`, with the whole frame and every optional part switchable; the main page shows the LEDs with their lowest ratio and the Live badge.
+- **Tests** render the components on the server through Vite (no switcher and no dock by default; the signed-out account menu), and cover `look.js` and `live.js`.
+
 ## 0.2.1
 
 The owner tried 0.2.0's grey "· required" and found it easy to miss: "there's no way to know which fields are mandatory before you hit save." Their pick was "B", an outlined Required tag (ADR 0001, decision 14, amended).

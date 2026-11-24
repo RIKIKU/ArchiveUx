@@ -2,7 +2,7 @@
 
 For agents building PagerArchive, RadioArchive or any other archive app. The rules are normative: **must** means CI or review fails you, **should** means do it unless the rule's reason doesn't apply and you say why in the pull request.
 
-The tokens are in `src/tokens.css`; the base styles in `src/base.css`; the pairings the contrast check measures in `contrast/pairs.json`; the gallery (`npm run gallery`) shows all of it in each look and theme. Decisions are in `docs/adr`.
+The tokens are in `src/tokens.css`; the base styles in `src/base.css`; the frame's Svelte components in `src/components` (0.3.0); the pairings the contrast check measures in `contrast/pairs.json`; the gallery (`npm run gallery`) shows all of it in each look and theme. Decisions are in `docs/adr`.
 
 ## 1. Using tokens
 
@@ -12,6 +12,12 @@ The tokens are in `src/tokens.css`; the base styles in `src/base.css`; the pairi
 4. Colours are written once as `light-dark(light, dark)`. A new colour token **must** be set in both looks (Console sets every token Harbour sets; `npm run check:tokens` fails otherwise) and in both themes.
 5. A new token needs a purpose (one line in its comment in `tokens.css`), and, if it's a colour, its pairings here and in `pairs.json`.
 6. App-specific tokens live in the app, follow the same rules, and the app checks them. Decided (owner, 2026-11-20): the only ones are PagerArchive's map tokens (`--map-*`, `--detail-map-width`, `--area-tag-*`); every other token is ArchiveUx's.
+7. **The look's first paint** (0.3.0, ADR 0002). The server writes the look on the root of the page it sends, `<html data-look="console">` (every look, Harbour too), so the first paint is already the person's look and no script runs first. The look comes from, in order:
+   1. the **parent-domain cookie** the app names, when the apps share one look (a combined deployment), if it holds a known look (`harbour` or `console`);
+   2. else the **app's own setting**: a signed-in profile's look, or what this browser chose, kept as the app keeps its other settings;
+   3. else **Harbour**.
+
+   A standalone app names no cookie and starts at 2. A look chosen in the account menu applies at once (no reload) and, with a cookie named, is written to it for the other app: `name=look; Domain=<parent>; Path=/; Max-Age=31536000; SameSite=Lax; Secure` (not `HttpOnly`, so either app's page can write it). `archiveux/look.js` is this rule in code (`pickLook`, `lookFromCookies`, `lookCookie`, `lookAttribute`, `applyLook`); a server in another language follows the same steps, and `test/look.test.mjs` holds the cases. The colour theme stays per browser (`data-theme`), as before.
 
 Example:
 
@@ -56,7 +62,10 @@ Example:
 | `--danger-text` | Error messages; a field's error under it (section 5) | `--bg`, `--surface`, `--surface-2` | text |
 | `--danger` | An invalid control's border (`aria-invalid`, section 5) | `--bg`, `--surface`, `--surface-2` | edge |
 | `--warn-fg` | Warnings, caveats, flags | `--warn-bg` | text |
-| `--ok-fg` | The Live dot | `--bg`, `--surface` | edge |
+| `--ok-fg` | The Live dot, and the Live badge's dot (section 4) | `--bg`, `--surface` | edge |
+| `--fg` | The Live badge's word "Live"; the app switcher; the account menu's Sign in | `--bg`, `--surface`; the switcher on `--bg`, `--hover`; Sign in on `--surface-2`, `--hover` | text |
+| `--muted` | The Behind badge's words and its hollow ring (section 4) | `--bg`, `--surface` | text; edge for the ring |
+| `--led-red`, `--led-orange`, `--led-yellow`, `--led-green`, `--led-cyan`, `--led-blue`, `--led-purple`, `--led-pink` | An LED: a lit mark beside a name (see LEDs) | `--bg`, `--surface`, `--hover` | edge |
 | `--heartbeat-fg` | A heartbeat page's label | `--bg`, `--surface` | text |
 | `--focus` | The focus ring | `--bg`, `--surface`, `--surface-2`, `--highlight` | edge |
 | `--control-border` | Borders of inputs, outlined buttons, popovers | `--bg`, `--surface`, `--surface-2` | edge |
@@ -72,7 +81,7 @@ Example:
 | `--accent`, `--accent-hover`, `--accent-pressed` | `--accent-fg` | Primary button, its hover and press |
 | `--accent-soft` | `--accent-soft-fg`, or `--fg` (`.ok`) | Current page, pressed, a saved message |
 | `--danger`, `--danger-hover` | `--danger-fg` | Danger button |
-| `--warn-bg` | `--warn-fg` | Warnings, caveats, alerts (an alert is the fill only, no edge: section 4) |
+| `--warn-bg` | `--warn-fg` | Warnings, caveats, alerts (an alert is the fill only, no edge: section 4); the Delayed badge |
 | `--fg` | `--bg` | Tooltip |
 | `--heat-N` (N = 0..4) | `--heat-N-fg`, its own step's | A heat grid's cells, none to most |
 
@@ -109,6 +118,26 @@ A priority **must** also be written in words (the label); colour is never the on
 
 Why only one switch: in Harbour's and Console's light themes the shades darken towards a dark accent, and `--fg` (dark) keeps its contrast while a light text would fail (`--bg` is 1.9-3.4:1 on `--heat-4`); in Harbour dark `--fg` still has 4.72:1 on `--heat-4` (`--bg` 3.23). Only Console dark's accent is light ink, so its busiest shade lightens towards `--fg` (3.55:1); there the count is dark. The owner asked for the page background colour; `--bg` measures 4.43:1 there, just under the floor, so it is `--accent-fg` (`#111111`, the accent's own text, 4.54:1). A look whose shades change **must** re-pick these per step so `npm run check:contrast` passes.
 
+### LEDs
+
+0.3.0 (ADR 0002), for RadioArchive's talkgroups. Eight named colours, `--led-red`, `--led-orange`, `--led-yellow`, `--led-green`, `--led-cyan`, `--led-blue`, `--led-purple` and `--led-pink`, the same in both looks so a name means one colour, darker in light and brighter in dark. An app stores the **name** (`red`), never a hex value, and draws the mark with `<span class="led" data-led="red" aria-hidden="true"></span>` beside the name it belongs to (`.led` in `base.css`, `--led-size` across, round). It is lit only while its thing is happening (a talkgroup's call playing); an LED that isn't lit isn't drawn.
+
+- **Never the only cue** (WCAG 1.4.1): the name is always beside it, and the mark is hidden from assistive technology.
+- Each is an **edge** of at least 3:1 on `--bg`, `--surface` and `--hover` (a hovered row) in every look and theme (`led-*` in `pairs.json`). Lowest of the three:
+
+| LED | Harbour light | Harbour dark | Console light | Console dark |
+|---|---|---|---|---|
+| red | 4.68 | 5.41 | 4.75 | 5.70 |
+| orange | 4.31 | 7.40 | 4.37 | 7.80 |
+| yellow | 4.12 | 9.97 | 4.18 | 10.50 |
+| green | 4.47 | 7.97 | 4.53 | 8.40 |
+| cyan | 4.32 | 8.13 | 4.38 | 8.57 |
+| blue | 4.61 | 6.01 | 4.67 | 6.33 |
+| purple | 5.06 | 5.94 | 5.13 | 6.26 |
+| pink | 4.80 | 6.38 | 4.87 | 6.72 |
+
+- Not on `--surface-2` or a fill that carries its own text: those aren't measured, so an LED isn't drawn there.
+
 ## 3. Contrast: the floor
 
 WCAG 2.1 AA, in both looks and both themes, for every app:
@@ -125,9 +154,59 @@ Example: a new toast drawn as `--surface-2` on `--bg` with no edge would be adde
 
 ## 4. Component patterns
 
+### The frame
+
+0.3.0 (ADR 0002). Every page of an app sits in one frame: the **side menu** on desktops (48rem and wider), the **top bar** (the app's start, such as breadcrumbs; its tools, such as a search box; the **app switcher**; the **account menu**), the page itself, and the **bottom bar** on phones instead of the side menu. Two parts are **optional and absent unless the app asks**: the app switcher and the dock. The components are in `archiveux/components` (`Frame`, `Menu`, `BottomBar`, `AccountMenu`, `AppSwitcher`, `LiveBadge`, `Icon`); `Frame` takes each part as a snippet, so an app may put its own in any part.
+
+```svelte
+<Frame otherApp={pagerUrl ? { name: 'PagerArchive', href: pagerUrl } : null} dock={listening ? player : undefined} dockLabel="Now playing">
+  {#snippet menu()}<Menu brand={{ name: 'RadioArchive', mark: 'RA', href: '/' }} {current} {top} {groups} />{/snippet}
+  {#snippet account()}<AccountMenu account={me} bind:theme bind:look onlook={saveLook} signIn="/signin" />{/snippet}
+  {#snippet bottomBar()}<BottomBar entries={top} {groups} {current} />{/snippet}
+  {#snippet notices()}<ReleaseNotice />{/snippet} <!-- the app's own, placed with .notice-place -->
+  {@render children()}
+</Frame>
+```
+
+The frame sets two tokens on its root for what it holds: `--frame-menu-width` (the side menu as drawn, `--menu-width` or `--menu-width-shrunk`) and `--dock-offset` (the dock's measured height, or none without a dock). The page's `main` has the id `main`, and a "Skip to content" link leads there. Nothing of the frame is printed.
+
+### App switcher
+
+0.3.0 (ADR 0002). For two apps deployed together: a link in the top bar, before the account menu, to the **other app, by name**, opening it **in the same tab**. The app hands the frame the other app's name and address from its own setting (`otherApp: { name, href }`); with none, which is the standalone case, there is **no switcher**, and nothing is discovered at runtime. Look: the `switch` icon then the name, `--fg` on the top bar's `--bg`, `--weight-strong`, `--text-sm`, at least `--target` high, hover `--hover`, pressed `--accent-soft` (`app-switcher` in `pairs.json`). Its accessible name is "Switch to PagerArchive", which holds the words shown (WCAG 2.5.3). `onswitch` lets the app act first (stop audio, say).
+
+### Dock
+
+0.3.0 (ADR 0002). An optional bar the app fills (RadioArchive's now playing and its controls), on every page that passes one (`dock` snippet, and `dockLabel` naming the region, "Now playing").
+
+- **Phones**: fixed above the bottom bar, across the width. **Desktops**: along the foot of the content beside the side menu, as wide as the content whether the menu is shrunk or not; it stays at the foot of the screen while the page scrolls under it. The page keeps room for it at its foot (and for the bottom bar on phones), so nothing is hidden behind it.
+- At least `--dock-height` high (it grows with what's in it), `--surface` like the bottom bar, a `--border-width` `--border` line above, padded `--space-sm` and the page's side padding, `--layer-header`. A `<section>` with an accessible name.
+- What's in it keeps to the pairs on `--surface`: text `--fg`, secondary text `--muted`, links `--accent`, controls' borders `--control-border`, focus `--focus` (`dock-text`, `dock-muted`, `dock-link`, `dock-control`, `dock-focus`), the Live badge, and LEDs. Its controls follow "Every control": at least `--target`, icon buttons with an accessible name.
+- **Notices and toasts sit above it** (next section).
+
+### Account menu
+
+From PagerArchive's; 0.3.0 makes it **work signed out** (ADR 0002), because an app may have people who never sign in (a listener).
+
+- Signed in (`account: { name, email }`): their initials as the button, then who they are, the app's links (`links`: Profileâ€¦), Colour theme, Look, the app's extras, and **Sign out**.
+- Signed out (`account: null`): an outline of a person as the button ("Account menu, signed out"), "Not signed in", **Sign in** (a link, `signIn="/signin"`, or a callback), and **the colour theme and the look, still choosable**. No Sign out.
+- The theme and the look apply at once, without reloading. The look is saved by the app's `onlook`: on the account when signed in, else as the app keeps its other settings, and in the shared look cookie when there is one (section 1, rule 7); if `onlook` throws, the old look comes back and the menu says "Couldn't save the look. Try again."
+- Look: a `--surface-2` panel with a `--control-border` edge, entries at least `--target` high, hover `--hover` (`account-signin` in `pairs.json`).
+
+### Live badge
+
+0.3.0 (ADR 0002). Where playback is, always **in words**, so the dot is never the only cue: `<span class="live-badge" data-state="live">Live</span>` (`.live-badge` in `base.css`, or `LiveBadge`; the words from `liveBadge()` in `archiveux/live.js`).
+
+| State | When | Look | Pairs |
+|---|---|---|---|
+| `live` | within 2 s of the live edge (`LIVE_WITHIN`) | a filled `--ok-fg` dot (`--pulse-size`), "Live" in `--fg`, `--weight-strong` | `live`, `live-text` |
+| `behind` | further behind | a hollow ring, `--border-width-strong` `--muted`, "Behind by 12 s" in `--muted` (then "1 min 35 s", "1 h 4 min") | `behind-ring`, `behind-text` |
+| `delayed` | a delay an admin set, however close | no dot, "Delayed 5 min" in `--warn-fg` on a `--warn-bg` fill, `--radius-badge` | `delayed-text` |
+
+On `--bg` or `--surface` (the dock). A delayed call is never Live. The app offers a way back to live (Jump to live) while behind; the badge only says where playback is.
+
 ### Notices and toasts
 
-- One at a time, placed at the bottom: beside the side menu on a desktop (`left: calc(var(--menu-width) + var(--space-lg))`, or `--menu-width-shrunk` when it's shrunk), and above the bottom bar across the width on a phone (under 48rem). It covers no part of the menu or bar.
+- One at a time, placed at the bottom: beside the side menu on a desktop (`left: calc(var(--frame-menu-width) + var(--space-lg))`: `--menu-width`, or `--menu-width-shrunk` when it's shrunk), and above the bottom bar across the width on a phone (under 48rem). It covers no part of the menu or bar. **With a dock, it sits above the dock** (0.3.0): `bottom` adds `--dock-offset`. `.notice-place` in `base.css` places it so, inside the frame (its `notices` snippet), where the frame sets both tokens; outside a frame `--dock-offset` is none and `--frame-menu-width` is `--menu-width`, so a notice placed as before 0.3.0 is where it was.
 - Look: fill `--highlight`, text `--fg`, links `--accent`, a `--border-width-strong` edge in `--notice-edge`, `--radius`, `--notice-shadow`, at most `--notice-width`, `--text-sm`.
 - **Timing** (the release notice; any notice that leaves by itself **must** follow it):
   - on screen **8 s**;
@@ -222,4 +301,4 @@ Bad: `Name *`, `Note (optional)`, a marker that is easy to miss (0.2.0's grey "Â
 
 ## 6. Gallery
 
-`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice, a working form), and the other tokens' values, for the look and theme chosen at the top. Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.
+`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice, a working form, the LEDs with their lowest ratio, the Live badge), and the other tokens' values, for the look and theme chosen at the top. Its second page, `frame.html`, is the whole frame with made-up content: the side menu, the bottom bar, the account menu signed in or out, the app switcher, the dock and a notice above it, each switched on and off on the page or from the address (`?dock=0`, `?switcher=0`, `?signedin=1`, `?shrunk=1`, `?notice=1`, `?look=console`, `?theme=dark`). Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.

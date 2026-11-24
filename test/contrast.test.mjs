@@ -112,3 +112,34 @@ test('a token that refers to a missing one is an error', () => {
 	const t = looks(":root { --bg: #fff; --fg: var(--nope); }\n:root[data-look='console'] { --bg: #000; --fg: #fff; }");
 	assert.throws(() => resolve(tokensOf(t, 'harbour'), 'fg', 'light'), /not a token/);
 });
+
+test('LEDs: eight named colours, each an edge of at least 3:1 on the page, a card and a hovered row, everywhere (0.3.0)', () => {
+	const names = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
+	for (const look of ['harbour', 'console']) for (const n of names) assert.ok(tokensOf(tokens, look).has(`led-${n}`), `${look} --led-${n}`);
+	const ids = names.map((n) => `led-${n}`);
+	const r = measure(tokens, { ...spec, pairs: spec.pairs.filter((p) => ids.includes(p.id)) });
+	// Eight colours, three backgrounds (the page, a card, a hovered row), two looks, two themes.
+	assert.equal(r.length, 8 * 3 * 4);
+	for (const m of r) {
+		assert.equal(m.kind, 'edge');
+		assert.ok(['bg', 'surface', 'hover'].includes(m.on), m.on);
+		assert.ok(m.pass, `${m.look} ${m.theme} ${m.pair} on --${m.on}: ${m.ratio}`);
+	}
+	// The same colour in both looks, so a name means one colour.
+	for (const n of names) for (const theme of ['light', 'dark']) assert.equal(resolve(tokensOf(tokens, 'harbour'), `led-${n}`, theme), resolve(tokensOf(tokens, 'console'), `led-${n}`, theme));
+});
+
+test('the dock and the Live badge: their pairs pass on --surface (and the page), everywhere (0.3.0)', () => {
+	const ids = ['dock-text', 'dock-muted', 'dock-link', 'dock-control', 'dock-focus', 'live', 'live-text', 'behind-text', 'behind-ring', 'delayed-text', 'app-switcher', 'account-signin'];
+	const r = measure(tokens, { ...spec, pairs: spec.pairs.filter((p) => ids.includes(p.id)) });
+	assert.deepEqual([...new Set(r.map((m) => m.pair))].sort(), [...ids].sort());
+	assert.ok(r.every((m) => m.pass), r.filter((m) => !m.pass).map((m) => `${m.look} ${m.theme} ${m.pair} ${m.ratio}`).join(', '));
+	for (const look of ['harbour', 'console']) assert.ok(tokensOf(tokens, look).has('dock-height'), look);
+});
+
+test("the frame's own tokens: no menu offset and no dock offset unless the frame sets them", () => {
+	const shared = tokensOf(tokens, 'harbour');
+	assert.equal(resolve(shared, 'dock-offset', 'light'), '0rem');
+	assert.equal(resolve(shared, 'frame-menu-width', 'light'), resolve(shared, 'menu-width', 'light'));
+	assert.equal(resolve(tokensOf(tokens, 'console'), 'frame-menu-width', 'dark'), resolve(tokensOf(tokens, 'console'), 'menu-width', 'dark'));
+});
