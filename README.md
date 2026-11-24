@@ -7,7 +7,7 @@ The shared design system of the archive apps (PagerArchive, RadioArchive): one l
 - **Rules** for agents building the apps: each token's purpose and allowed pairings, the WCAG AA contrast floor, and component patterns ([docs/design-system.md](docs/design-system.md)). Decisions: [docs/adr](docs/adr).
 - **A contrast check**, run in CI, over every allowed pairing in both looks and both themes ([contrast/pairs.json](contrast/pairs.json)).
 - **A gallery** of every token, pairing and pattern, the owner's review tool.
-- Later, **Svelte components** ([docs/components-plan.md](docs/components-plan.md)).
+- **The frame's Svelte components** (0.3.0): the frame with its optional app switcher and dock, the side menu, the bottom bar, the account menu (signed in or out), the Live badge and icons (`src/components`); the look's first-paint rule (`src/look.js`) and the Live badge's words (`src/live.js`). The rest move as [docs/components-plan.md](docs/components-plan.md) says.
 
 ## Using it in an app
 
@@ -31,6 +31,16 @@ Import the styles once, before the app's own (with Vite or SvelteKit):
 ```
 
 Choose the look and theme on `<html>`: `data-look="console"` for Console (none for Harbour), and `data-theme="light"` or `"dark"` to override the system (none follows it). Then use only tokens (`var(--fg)`, `var(--space-lg)`) in components, in the pairings the rules allow.
+
+The frame's components are Svelte 5, for an app built with Vite or SvelteKit (rules, section 4, "The frame"); the app switcher and the dock are there only when the app passes them:
+
+```svelte
+<script>
+  import { Frame, Menu, BottomBar, AccountMenu } from 'archiveux/components';
+  import { applyLook, lookCookie, pickLook } from 'archiveux/look.js';
+  import { liveBadge } from 'archiveux/live.js';
+</script>
+```
 
 To upgrade, read [CHANGELOG.md](CHANGELOG.md) from your tag to the new one, change the tag in `package.json` and run `npm install`.
 

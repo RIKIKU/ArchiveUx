@@ -1,7 +1,7 @@
 {
   "name": "archiveux",
-  "version": "0.2.1",
-  "description": "The shared design system of the archive apps: tokens, base styles, rules and a WCAG AA contrast check.",
+  "version": "0.3.0",
+  "description": "The shared design system of the archive apps: tokens, base styles, rules, a WCAG AA contrast check, and the frame's Svelte components.",
   "license": "MIT",
   "type": "module",
   "repository": {
@@ -19,6 +19,16 @@
     "./archiveux.css": "./src/archiveux.css",
     "./tokens.css": "./src/tokens.css",
     "./base.css": "./src/base.css",
+    "./look.js": "./src/look.js",
+    "./live.js": "./src/live.js",
+    "./components": {
+      "svelte": "./src/components/index.js",
+      "default": "./src/components/index.js"
+    },
+    "./components/*": {
+      "svelte": "./src/components/*",
+      "default": "./src/components/*"
+    },
     "./contrast/pairs.json": "./contrast/pairs.json",
     "./package.json": "./package.json"
   },
@@ -29,6 +39,14 @@
     "test": "node --test \"test/*.test.mjs\"",
     "gallery": "vite",
     "build:gallery": "vite build"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "svelte": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",

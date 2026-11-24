@@ -7,6 +7,9 @@
 	import spec from '../contrast/pairs.json';
 	import known from '../contrast/findings.json';
 	import { looks, over, parseColour, ratio, resolve, tokensOf } from '../scripts/tokens.mjs';
+	import LiveBadge from '../src/components/LiveBadge.svelte';
+
+	const leds = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
 
 	const t = looks(raw);
 	const names = [...new Set([...t.shared.keys(), ...t.harbour.keys()])];
@@ -124,6 +127,7 @@
 		<label
 			>Theme <select bind:value={theme}><option value="auto">Auto (system)</option><option value="light">Light</option><option value="dark">Dark</option></select></label
 		>
+		<a href="./frame.html?look={look}{theme === 'auto' ? '' : `&theme=${theme}`}">The frame: menu, bottom bar, account menu, app switcher, dock</a>
 	</div>
 	<p class="status">
 		{look === 'console' ? 'Console' : 'Harbour'}, {scheme}: {measured.length} pairings measured, {measured.length - failing.length} pass,
@@ -174,6 +178,24 @@
 				<p class="error">An error line (.error).</p>
 				<p class="status">A status line (.status).</p>
 				<p><span class="live"></span> Live (--ok-fg dot)</p>
+			</div>
+			<div class="card">
+				<h3>LEDs</h3>
+				<p class="muted small">A lit mark beside a name (.led, data-led), never alone: the name is the cue. Each at least 3:1 on --bg, --surface and --hover; here the lowest of the three.</p>
+				<ul class="leds">
+					{#each leds as c (c)}
+						<li>
+							<span class="led" data-led={c} aria-hidden="true"></span> Channel {c}
+							<span class="num small muted">{Math.min(...["bg", "surface", "hover"].map((b) => r(now[`led-${c}`].colour, now[b].colour))).toFixed(2)}</span>
+						</li>
+					{/each}
+				</ul>
+			</div>
+			<div class="card">
+				<h3>Live badge</h3>
+				<p class="muted small">Where playback is, in words (.live-badge, live.js): Live (--ok-fg dot), Behind (a hollow --muted ring), Delayed (--warn-fg on --warn-bg). <a href="./frame.html">The frame, with the dock</a>.</p>
+				<p class="row-of"><LiveBadge /> <LiveBadge behind={12} /> <LiveBadge behind={95} /> <LiveBadge delay={5} /></p>
+				<div class="alert-stage on-card"><p class="row-of"><LiveBadge /> <LiveBadge behind={12} /> <LiveBadge delay={5} /></p></div>
 			</div>
 			<div class="card">
 				<h3>Alerts</h3>
@@ -480,6 +502,19 @@
 	.alert-stage.on-card {
 		background: var(--surface);
 		border: var(--border-width) solid var(--border);
+	}
+	.leds {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--space-2xs) var(--space-md);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+	.leds li {
+		display: flex;
+		align-items: center;
+		gap: var(--space-xs);
 	}
 	.heat {
 		width: auto;

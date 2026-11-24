@@ -3,8 +3,9 @@
    (tokens.css). Moved from PagerArchive's web/src/app.css unchanged; the
    map's full-screen rule stays there. 0.2.0 added the form fields' classes
    (.field, .required, .field-hint, .field-error, .field-group and the
-   aria-invalid border). References such as R77b are PagerArchive's
-   SPEC.md. */
+   aria-invalid border); 0.3.0 the frame's notice placement (.notice-place),
+   the LED mark (.led) and the Live badge (.live-badge). References such as
+   R77b are PagerArchive's SPEC.md. */
 
 /* R81b: on a page with a scrubber, the scrubber is the right edge's control
    and the page's own scroll bar is hidden (owner, 2026-11-13; Scrubber.svelte).
@@ -411,4 +412,115 @@ textarea[aria-invalid='true'] {
 		color: var(--fg);
 		box-shadow: 0 0 0 var(--focus-offset) var(--notice-edge);
 	}
+}
+
+/* Notices and toasts in the frame (docs/design-system.md, section 4; 0.3.0,
+   ADR 0002): one at a time, at the bottom, beside the side menu on a
+   desktop and across the width above the bottom bar on a phone, and above
+   the dock when one is shown. The frame sets --frame-menu-width (shrunk or
+   not) and --dock-offset (the dock's height, or none) on its root, so a
+   notice rendered inside the frame (its notices snippet) follows both.
+   Placement only: the notice's look is its own (fill --highlight, a
+   --notice-edge edge). */
+.notice-place {
+	position: fixed;
+	left: calc(var(--frame-menu-width) + var(--space-lg));
+	bottom: calc(var(--dock-offset) + var(--space-lg));
+	z-index: var(--layer-overlay);
+	max-width: min(var(--notice-width), var(--panel-max));
+}
+@media (max-width: 47.99rem) {
+	.notice-place {
+		left: var(--page-pad-phone);
+		right: var(--page-pad-phone);
+		bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom) + var(--dock-offset) + var(--space-sm));
+		max-width: none;
+	}
+}
+@media print {
+	.notice-place {
+		display: none;
+	}
+}
+
+/* An LED (0.3.0, ADR 0002): a lit mark beside a name, in one of the named
+   colours: <span class="led" data-led="red" aria-hidden="true"></span> Channel 1. It is
+   decoration for assistive technology (aria-hidden), because the name beside
+   it is the cue; colour is never the only one (WCAG 1.4.1). Each colour is
+   at least 3:1 on --bg, --surface and --hover (led-* in pairs.json). An LED that
+   isn't lit isn't drawn. */
+.led {
+	display: inline-block;
+	flex: none;
+	width: var(--led-size);
+	height: var(--led-size);
+	border-radius: var(--radius-round);
+	vertical-align: middle;
+}
+.led[data-led='red'] {
+	background: var(--led-red);
+}
+.led[data-led='orange'] {
+	background: var(--led-orange);
+}
+.led[data-led='yellow'] {
+	background: var(--led-yellow);
+}
+.led[data-led='green'] {
+	background: var(--led-green);
+}
+.led[data-led='cyan'] {
+	background: var(--led-cyan);
+}
+.led[data-led='blue'] {
+	background: var(--led-blue);
+}
+.led[data-led='purple'] {
+	background: var(--led-purple);
+}
+.led[data-led='pink'] {
+	background: var(--led-pink);
+}
+
+/* The Live / Behind / Delayed badge (0.3.0, ADR 0002): where playback is,
+   always in words. Live: a filled --ok-fg dot and "Live" in --fg. Behind:
+   a hollow --muted ring and "Behind by 12 s" in --muted. Delayed (a delay
+   an admin set): "Delayed 5 min", --warn-fg on its --warn-bg fill. Each on
+   --bg or --surface (the dock): live, live-text, behind-ring, behind-text,
+   delayed-text in pairs.json. The words come from live.js's liveBadge(). */
+.live-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	color: var(--fg);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-strong);
+	font-variant-numeric: tabular-nums;
+	line-height: var(--leading-tight);
+	white-space: nowrap;
+}
+.live-badge::before {
+	content: '';
+	flex: none;
+	width: var(--pulse-size);
+	height: var(--pulse-size);
+	border-radius: var(--radius-round);
+	background: var(--ok-fg);
+}
+.live-badge[data-state='behind'] {
+	color: var(--muted);
+	font-weight: var(--weight-normal);
+}
+.live-badge[data-state='behind']::before {
+	background: transparent;
+	border: var(--border-width-strong) solid var(--muted);
+}
+.live-badge[data-state='delayed'] {
+	padding: var(--badge-pad-y) var(--badge-pad-x);
+	border-radius: var(--radius-badge);
+	background: var(--warn-bg);
+	color: var(--warn-fg);
+}
+.live-badge[data-state='delayed']::before {
+	display: none;
 }

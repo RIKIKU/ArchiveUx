@@ -18,7 +18,9 @@
    Moved from PagerArchive's web/src/app.css (main at 6dfa1f0) with names and
    values unchanged; 0.1.0 then added --heat-0-fg..--heat-4-fg (the
    owner's decisions of 2026-11-20). 0.1.0's --alert-edge was taken off in
-   0.1.1 (the owner, 2026-11-20): an admin alert is its --warn-bg fill only. The map's tokens (--map-*, --detail-map-width,
+   0.1.1 (the owner, 2026-11-20): an admin alert is its --warn-bg fill only. 0.3.0 added the
+   frame's (--frame-menu-width, --dock-offset, --dock-height) and the LED
+   colours (--led-*, --led-size), for RadioArchive (ADR 0002). The map's tokens (--map-*, --detail-map-width,
    --area-tag-*) stay in PagerArchive. References such as R77b, M24 or
    ADR 0015 in the comments are PagerArchive's SPEC.md and docs/adr. */
 
@@ -44,6 +46,14 @@
 	--target: var(--target-min);
 	/* The room the hidden scroll bar had: measured (scrubberHere.svelte.ts). */
 	--scrollbar-gap: 0px;
+	/* The frame (0.3.0, ADR 0002) sets these on its root, so what it holds
+	   can follow them: the side menu's width as drawn (--menu-width, or
+	   --menu-width-shrunk while shrunk), and the room the dock takes at the
+	   foot of the screen (none without a dock; the dock's measured height
+	   with one). Notices and toasts sit beside the first and above the
+	   second (.notice-place in base.css). */
+	--frame-menu-width: var(--menu-width);
+	--dock-offset: 0rem;
 }
 
 /* Harbour (ADR 0015), the default look: airy, with larger type, more room
@@ -282,6 +292,25 @@
 	--notice-width: 22rem;
 	--notice-edge: light-dark(#8a5a00, #e0a526);
 	--notice-countdown-height: 0.1875rem;
+	/* The dock (0.3.0, ADR 0002): the optional bar along the foot of the
+	   content that the app fills (a player's now playing and controls), at
+	   least this high. It is --surface, like the bottom bar, with a --border
+	   line above; what it holds keeps to the pairs on --surface. */
+	--dock-height: 4.5rem;
+	/* LED colours (0.3.0, ADR 0002): a fixed set of named marks an app
+	   lights beside a name (a talkgroup's, while its call plays). Each is at
+	   least 3:1 on --bg, --surface and --hover in every look and theme (led-* in
+	   contrast/pairs.json), and never the only cue: the name is beside it.
+	   The same in both looks, so a colour keeps its name everywhere. */
+	--led-red: light-dark(#c8302b, #ff6b61);
+	--led-orange: light-dark(#b35600, #ff9f43);
+	--led-yellow: light-dark(#8f6f00, #f2d03b);
+	--led-green: light-dark(#2a7d3c, #5fd37a);
+	--led-cyan: light-dark(#007c88, #3fd0e0);
+	--led-blue: light-dark(#2e67d1, #6fa3ff);
+	--led-purple: light-dark(#8148c0, #b98cff);
+	--led-pink: light-dark(#b8337f, #ff7ac8);
+	--led-size: 0.75em;
 }
 
 /* Console (ADR 0015's second prototype, built in M15, R82d; ADR 0028): ink
@@ -515,6 +544,19 @@
 	--notice-width: 22rem;
 	--notice-edge: light-dark(#8a5a00, #e0a526);
 	--notice-countdown-height: 0.1875rem;
+	/* The dock (0.3.0, ADR 0002): denser, as the rest of Console. */
+	--dock-height: 4rem;
+	/* LED colours (0.3.0, ADR 0002): the same as Harbour's, so a colour
+	   keeps its name in both looks. */
+	--led-red: light-dark(#c8302b, #ff6b61);
+	--led-orange: light-dark(#b35600, #ff9f43);
+	--led-yellow: light-dark(#8f6f00, #f2d03b);
+	--led-green: light-dark(#2a7d3c, #5fd37a);
+	--led-cyan: light-dark(#007c88, #3fd0e0);
+	--led-blue: light-dark(#2e67d1, #6fa3ff);
+	--led-purple: light-dark(#8148c0, #b98cff);
+	--led-pink: light-dark(#b8337f, #ff7ac8);
+	--led-size: 0.75em;
 }
 
 @media (pointer: coarse) {
