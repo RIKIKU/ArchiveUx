@@ -24,7 +24,7 @@ before(async () => {
 	});
 	({ render } = await server.ssrLoadModule('svelte/server'));
 	({ createRawSnippet } = await server.ssrLoadModule('svelte'));
-	for (const n of ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon']) c[n] = (await server.ssrLoadModule(`/src/components/${n}.svelte`)).default;
+	for (const n of ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon', 'DateRange', 'Suggest']) c[n] = (await server.ssrLoadModule(`/src/components/${n}.svelte`)).default;
 	c.index = await server.ssrLoadModule('/src/components/index.js');
 });
 after(() => server?.close());
@@ -34,8 +34,8 @@ const snip = (html) => createRawSnippet(() => ({ render: () => html }));
 const html = (C, props = {}) => render(C, { props }).body.replace(/<!--[^>]*-->/g, '');
 
 test('every component is in the index', () => {
-	for (const n of ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon']) assert.equal(typeof c.index[n], 'function', n);
-	assert.ok(c.index.iconNames.includes('signin') && c.index.iconNames.includes('switch'));
+	for (const n of ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon', 'DateRange', 'Suggest']) assert.equal(typeof c.index[n], 'function', n);
+	assert.ok(['signin', 'switch', 'calendar', 'previous', 'next'].every((n) => c.index.iconNames.includes(n)));
 });
 
 test('the frame by default: no app switcher, no dock, nothing offset', () => {
@@ -136,4 +136,60 @@ test('an icon is hidden from assistive technology; an app passes its own as svg'
 	assert.match(html(c.Icon, { name: 'switch' }), /<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path/);
 	assert.match(html(c.Icon, { svg: '<circle cx="12" cy="12" r="4" />' }), /<circle cx="12"/);
 	assert.match(html(c.Icon, { name: 'no-such-icon' }), /<svg class="ui-icon"[^>]*><\/svg>/);
+});
+
+// DateRange (0.4.0). Days in 2020, so the labels carry the year whatever today is.
+const range = { from: '2020-11-03', to: '2020-11-05', timeZone: 'Australia/Melbourne', firstPage: '2019-01-01', lastPage: '2020-12-31' };
+const hidden = (out) => [...out.matchAll(/<input type="hidden" name="([^"]+)" value="([^"]*)"/g)].map((m) => `${m[1]}=${m[2]}`);
+
+test('DateRange by default: whole days, the from and to fields only, no times', () => {
+	const out = html(c.DateRange, range);
+	assert.match(out, /aria-label="Dates: 3 Nov 2020 – 5 Nov 2020"/);
+	assert.match(out, /<span class="label[^"]*">3 Nov 2020 – 5 Nov 2020<\/span>/);
+	assert.deepEqual(hidden(out), ['from=2020-11-03', 'to=2020-11-05']);
+	assert.doesNotMatch(out, /time/i);
+	// Times given without times on are ignored.
+	assert.deepEqual(hidden(html(c.DateRange, { ...range, fromTime: '14:00', toTime: '16:30' })), ['from=2020-11-03', 'to=2020-11-05']);
+	// Nothing picked: the icon alone, named Dates.
+	assert.match(html(c.DateRange, { timeZone: 'UTC' }), /aria-label="Dates"/);
+});
+
+test('DateRange with times: the time fields, and the times in the label', () => {
+	const out = html(c.DateRange, { ...range, times: true, fromTime: '14:00', toTime: '09:30' });
+	assert.match(out, /aria-label="Dates: 3 Nov 2020 14:00 – 5 Nov 2020 09:30"/);
+	assert.deepEqual(hidden(out), ['from=2020-11-03', 'to=2020-11-05', 'from_time=14:00', 'to_time=09:30']);
+	// An empty time is the whole day, and is sent empty.
+	const half = html(c.DateRange, { ...range, times: true, fromTime: '14:00' });
+	assert.match(half, /aria-label="Dates: 3 Nov 2020 14:00 – 5 Nov 2020"/);
+	assert.deepEqual(hidden(half), ['from=2020-11-03', 'to=2020-11-05', 'from_time=14:00', 'to_time=']);
+	// One day.
+	const one = { ...range, to: '', times: true };
+	assert.match(html(c.DateRange, { ...one, fromTime: '14:00', toTime: '16:30' }), /aria-label="Dates: 3 Nov 2020 14:00 – 16:30"/);
+	assert.match(html(c.DateRange, { ...one, fromTime: '14:00' }), /aria-label="Dates: 3 Nov 2020 from 14:00"/);
+	assert.match(html(c.DateRange, { ...one, toTime: '16:30' }), /aria-label="Dates: 3 Nov 2020 until 16:30"/);
+	assert.match(html(c.DateRange, one), /aria-label="Dates: 3 Nov 2020"/);
+	// No day, no times: a time means nothing without its day.
+	assert.deepEqual(hidden(html(c.DateRange, { timeZone: 'UTC', times: true, fromTime: '14:00' })), ['from=', 'to=', 'from_time=', 'to_time=']);
+});
+
+test('DateRange: the calendar is a closed dialog until the button opens it', () => {
+	const out = html(c.DateRange, { ...range, times: true });
+	assert.match(out, /<button[^>]*aria-haspopup="dialog"[^>]*aria-expanded="false"/s);
+	assert.match(out, /role="dialog" aria-label="Choose dates" hidden/);
+	assert.doesNotMatch(out, /role="grid"/);
+});
+
+test('Suggest: an ARIA combobox, its list closed and labelled, the count announced politely', () => {
+	const out = html(c.Suggest, { suggest: () => ({ options: [], what: 'suggestion' }), label: 'Channel', listLabel: 'Channels', icon: 'search' });
+	const input = out.match(/<input[^>]*>/)[0];
+	for (const a of ['role="combobox"', 'aria-autocomplete="list"', 'aria-expanded="false"', 'autocomplete="off"', 'type="text"']) assert.ok(input.includes(a), a);
+	assert.match(input, /aria-controls="([^"]+)-list"/);
+	assert.match(out, /role="listbox" aria-label="Channels" hidden/);
+	assert.match(out, /<span class="visually-hidden[^"]*">Channel<\/span>/);
+	assert.match(out, /aria-live="polite"/);
+	assert.match(out, /<svg class="ui-icon"/);
+	// Shown above, required, invalid (rules, section 5).
+	const field = html(c.Suggest, { suggest: () => ({ options: [], what: 'suggestion' }), label: 'Channel', listLabel: 'Channels', showLabel: true, marker: 'required', invalid: true, id: 'ch' });
+	assert.match(field, /<label class="above[^"]*" for="ch">Channel <span class="required">required<\/span><\/label>/);
+	assert.match(field, /<input[^>]*id="ch"[^>]*required[^>]*aria-invalid="true"/);
 });

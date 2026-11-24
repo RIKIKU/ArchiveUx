@@ -2,7 +2,7 @@
 
 For agents building PagerArchive, RadioArchive or any other archive app. The rules are normative: **must** means CI or review fails you, **should** means do it unless the rule's reason doesn't apply and you say why in the pull request.
 
-The tokens are in `src/tokens.css`; the base styles in `src/base.css`; the frame's Svelte components in `src/components` (0.3.0); the pairings the contrast check measures in `contrast/pairs.json`; the gallery (`npm run gallery`) shows all of it in each look and theme. Decisions are in `docs/adr`.
+The tokens are in `src/tokens.css`; the base styles in `src/base.css`; the Svelte components in `src/components` (the frame, 0.3.0; `DateRange` and `Suggest`, 0.4.0), with `archiveux/dates.js`; the pairings the contrast check measures in `contrast/pairs.json`; the gallery (`npm run gallery`) shows all of it in each look and theme. Decisions are in `docs/adr`.
 
 ## 1. Using tokens
 
@@ -240,6 +240,36 @@ On `--bg` or `--surface` (the dock). A delayed call is never Live. The app offer
 - **Shrunk** (`--menu-width-shrunk`): only the group icons, each with a tooltip and an accessible name; hovering over one or focusing it opens a flyout of its pages (`--flyout-width`, `--surface-2`, `--control-border`, `--layer-overlay`).
 - Counts (waiting requests and the like) are pills, `--count-min` wide. The build's version at the very foot (where the release notice lands on a desktop).
 
+### Dates
+
+0.4.0 (ADR 0003). `DateRange`, moved from PagerArchive: a calendar icon button that opens one month's calendar to pick a range of days, and, **only when the app asks** (`times`), the times of day too.
+
+- **The button** is a secondary button with the calendar icon and, once a range is picked, the range in words beside it ("18 Nov – 22 Nov"; the year when it isn't this one), outlined `--accent` while set. Its accessible name is "Dates", or "Dates: 18 Nov – 22 Nov". Its tooltip says "Dates", and Escape hides it (WCAG 1.4.13).
+- **The calendar** is a dialog under the button: `--surface-2`, a `--control-border` edge, `--radius`, `--calendar-width` wide (at most `--panel-max`, so it fits a phone). The first day picked is From and the second To; the days between are joined by an `--accent-soft` bar, previewed (`--preview-opacity`) as the pointer or the focus moves. A second day before the first swaps them, the same day twice is one day, a third pick starts again, and closing after one pick is that one day. No day after today. The picked days are `--accent` with `--accent-fg`, today has a `--control-border` ring, days of other months are `--muted`.
+- **The month-and-year title** switches to the year's months, and the year to 12 years; years with no records (outside `firstPage` and `lastPage`) and months after this one are greyed out.
+- **Keys**: arrows move the day (Page Up and Page Down a month, with Shift a year; Home and End the week), Enter picks, Escape closes and gives the focus back to the button. In the months and years, arrows move and Page Up and Page Down go a year or 12.
+- **Days are the deployment's** (`timeZone`, an IANA name), never the browser's, and are `YYYY-MM-DD`. In a form the range is the hidden fields `from` and `to`; `onchange(from, to)` is told when the calendar closes with a different range.
+
+**Times of day** (`times`, opt-in; RadioArchive's search of recent calls). Without `times`, nothing of this is drawn, and the calendar is PagerArchive's, unchanged.
+
+- Under the days, behind a `--border` line: **From time** and **To time**, native time fields (`<input type="time">`, minutes) side by side, each with its visible label, and the hint "Leave a time empty for the whole day." (`--muted`, linked from both with `aria-describedby`). They show in the days view only, and are disabled until a first day is picked. The fields show the browser's own clock format (12- or 24-hour); their value is always `HH:MM`, 24-hour.
+- **An empty time is the whole day**: From's day from its start, To's day to its end. **To includes its whole minute**: "to 16:30" includes what started at 16:30, as "to 5 Nov" includes 5 Nov.
+- On one day, a To time before the From time **swaps them** when the calendar closes, as the days do. **Enter in a time closes the calendar** (it never sends the form half set) and gives the focus back to the button.
+- The button says the times: "23 Nov 21:30 – 24 Nov 06:15"; on one day "21 Nov 09:00 – 16:30", "21 Nov from 09:00", "21 Nov until 16:30".
+- In a form, also the hidden fields `from_time` and `to_time` (`HH:MM`, or empty); `onchange(from, to, fromTime, toTime)`. The times are on the same clock as the days. `rangeBounds({ from, to, fromTime, toTime }, timeZone)` in `archiveux/dates.js` gives the instants for an API (`start`, and `end`, which is excluded), across daylight saving; a server in another language follows its tests.
+
+Pairs (`pairs.json`): `calendar-day`, `calendar-muted`, `calendar-picked`, `calendar-picked-cell` (text), `calendar-focus`, `calendar-today`, `calendar-hover-ring`, `calendar-time` (edges), from existing tokens. The lowest: today's ring 3.19 (Harbour light, on the bar), the time fields' borders 3.86, muted words 5.55.
+
+### Suggestions
+
+0.4.0 (ADR 0003). `Suggest`, moved from PagerArchive: a text box with suggestions, the ARIA combobox pattern (`role="combobox"`, `aria-expanded`, `aria-controls` to a `listbox`, `aria-activedescendant`). What it suggests is the app's: `suggest(text, caret)` returns the options for the word at the caret, so ArchiveUx knows no app's search.
+
+- Arrow keys move through the options (and open the list), Enter picks one, Escape closes the list; the number of options is announced politely ("3 suggestions"). Enter with nothing picked is left to the form.
+- Options come in runs under a heading (`section`): a **value** replaces the word it was suggested for with its `insert` (shown as `key:` and the rest when it has a key, else as its `value`); a **key** ("agency:", PagerArchive's query language) goes in at the cursor and its values follow; **text** ("Search text: …") searches for the words as typed. An app without a query language suggests values only.
+- The box: `--surface-2`, a `--control-border` edge, the focus ring round the whole box, an optional icon in `--muted`; the label above (`showLabel`) or for screen readers only, and Required and `aria-invalid` as the rules for forms say (section 5). The list: `--surface-2`, `--control-border`, at most `--suggestions-height`; options at least `--target` high, hover `--hover`, the active one `--accent-soft` with `--accent-soft-fg`, headings and hints `--muted`.
+
+Pairs: `suggest-option`, `suggest-muted`, `suggest-active` (text), `suggest-edge`, `suggest-focus` (edges). The lowest: the borders 3.62 (Harbour light), muted words 6.19.
+
 ### Every control
 
 - At least `--target` high and wide (44 px on touch screens: `--target-coarse`).
@@ -301,4 +331,4 @@ Bad: `Name *`, `Note (optional)`, a marker that is easy to miss (0.2.0's grey "�
 
 ## 6. Gallery
 
-`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice, a working form, the LEDs with their lowest ratio, the Live badge), and the other tokens' values, for the look and theme chosen at the top. Its second page, `frame.html`, is the whole frame with made-up content: the side menu, the bottom bar, the account menu signed in or out, the app switcher, the dock and a notice above it, each switched on and off on the page or from the address (`?dock=0`, `?switcher=0`, `?signedin=1`, `?shrunk=1`, `?notice=1`, `?look=console`, `?theme=dark`). Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.
+`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice, a working form, the LEDs with their lowest ratio, the Live badge), and the other tokens' values, for the look and theme chosen at the top. Its second page, `frame.html`, is the whole frame with made-up content: the side menu, the bottom bar, the account menu signed in or out, the app switcher, the dock and a notice above it, each switched on and off on the page or from the address (`?dock=0`, `?switcher=0`, `?signedin=1`, `?shrunk=1`, `?notice=1`, `?look=console`, `?theme=dark`). Its third page, `search.html`, has `DateRange` without and with times, each in a form whose fields it shows (with `rangeBounds`), and `Suggest` with made-up channels. Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.

@@ -7,7 +7,7 @@ The shared design system of the archive apps (PagerArchive, RadioArchive): one l
 - **Rules** for agents building the apps: each token's purpose and allowed pairings, the WCAG AA contrast floor, and component patterns ([docs/design-system.md](docs/design-system.md)). Decisions: [docs/adr](docs/adr).
 - **A contrast check**, run in CI, over every allowed pairing in both looks and both themes ([contrast/pairs.json](contrast/pairs.json)).
 - **A gallery** of every token, pairing and pattern, the owner's review tool.
-- **The frame's Svelte components** (0.3.0): the frame with its optional app switcher and dock, the side menu, the bottom bar, the account menu (signed in or out), the Live badge and icons (`src/components`); the look's first-paint rule (`src/look.js`) and the Live badge's words (`src/live.js`). The rest move as [docs/components-plan.md](docs/components-plan.md) says.
+- **Svelte components**: the frame (0.3.0) with its optional app switcher and dock, the side menu, the bottom bar, the account menu (signed in or out), the Live badge and icons; the range calendar `DateRange`, with times of day if the app asks, and the combobox `Suggest` (0.4.0) (`src/components`); the look's first-paint rule (`src/look.js`), the Live badge's words (`src/live.js`) and a range as instants (`src/dates.js`). The rest move as [docs/components-plan.md](docs/components-plan.md) says.
 
 ## Using it in an app
 
@@ -32,14 +32,24 @@ Import the styles once, before the app's own (with Vite or SvelteKit):
 
 Choose the look and theme on `<html>`: `data-look="console"` for Console (none for Harbour), and `data-theme="light"` or `"dark"` to override the system (none follows it). Then use only tokens (`var(--fg)`, `var(--space-lg)`) in components, in the pairings the rules allow.
 
-The frame's components are Svelte 5, for an app built with Vite or SvelteKit (rules, section 4, "The frame"); the app switcher and the dock are there only when the app passes them:
+The components are Svelte 5, for an app built with Vite or SvelteKit (rules, section 4); the app switcher, the dock and `DateRange`'s times are there only when the app asks for them:
 
 ```svelte
 <script>
   import { Frame, Menu, BottomBar, AccountMenu } from 'archiveux/components';
   import { applyLook, lookCookie, pickLook } from 'archiveux/look.js';
   import { liveBadge } from 'archiveux/live.js';
+  // 0.4.0: search controls, and a range picked with times as UTC instants
+  import { DateRange, Suggest } from 'archiveux/components';
+  import { rangeBounds } from 'archiveux/dates.js';
 </script>
+```
+
+`DateRange` with times sends `from`, `to`, `from_time` and `to_time` in a form, or tells `onchange`:
+
+```svelte
+<DateRange {from} {to} times {fromTime} {toTime} timeZone="Australia/Melbourne"
+  onchange={(from, to, fromTime, toTime) => search(rangeBounds({ from, to, fromTime, toTime }, "Australia/Melbourne"))} />
 ```
 
 To upgrade, read [CHANGELOG.md](CHANGELOG.md) from your tag to the new one, change the tag in `package.json` and run `npm install`.

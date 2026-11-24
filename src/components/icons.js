@@ -25,7 +25,8 @@
 
 // The frame's icons (0.3.0, ADR 0002), a subset of PagerArchive's
 // (web/src/lib/icons.ts) under generic names, plus sign-in, the app switcher
-// and a player's controls. Each value is the inner markup of a 24 x 24
+// and a player's controls; and DateRange's calendar, previous and next
+// (0.4.0). Each value is the inner markup of a 24 x 24
 // outline SVG, drawn with currentColor. An app's own icons stay in the app
 // and are passed to Icon as svg (see Icon.svelte).
 export const icons = {
@@ -55,7 +56,10 @@ export const icons = {
 	switch: '<path d="M7 10h14l-4 -4" /><path d="M17 14h-14l4 4" />',
 	play: '<path d="M7 4v16l13 -8l-13 -8" />',
 	pause: '<path d="M6 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12" /><path d="M14 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12" />',
-	skip: '<path d="M4 5v14l12 -7l-12 -7" /><path d="M20 5l0 14" />'
+	skip: '<path d="M4 5v14l12 -7l-12 -7" /><path d="M20 5l0 14" />',
+	calendar: '<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /><path d="M11 15h1" /><path d="M12 15v3" />',
+	previous: '<path d="M14 6l-6 6l6 6v-12" />',
+	next: '<path d="M10 18l6 -6l-6 -6v12" />'
 };
 
 /** The names of the frame's icons. */
