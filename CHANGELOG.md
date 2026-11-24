@@ -2,6 +2,17 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.4.1
+
+The owner's review of ADR 0002's decisions 7-13 (2026-11-25): all accepted, with one change. **Live now means within 5 s of the live edge, not 2 s.**
+
+- **`LIVE_WITHIN` is 5** (`archiveux/live.js`), so `liveBadge()` and `LiveBadge` say "Live" up to 5 s behind and "Behind by 5 s" from there. An app that passes its own `liveWithin` is unaffected. An app that shows Jump to live while behind should compare with `LIVE_WITHIN`, not a number of its own.
+- **ADR 0002** is marked accepted by the owner, with the change in decision 13; the rules (section 4, "Live badge") say 5 s.
+- **Gallery**: the frame page's Jump to live follows `LIVE_WITHIN`.
+- **Tests**: Live at 2 s and 4.9 s, Behind from 5 s.
+
+No token, class or pairing changes; the contrast check is as in 0.4.0. Moving from 0.4.0 needs no change in the app, unless it hard-codes 2 s.
+
 ## 0.4.0
 
 What RadioArchive needs from ArchiveUx to search recent calls (#6, item 7, approved by the owner on 2026-11-24; ADR 0003): `DateRange` with times of day, and `Suggest`. Both move from PagerArchive (batch (b) of `docs/components-plan.md`); `SearchBox` is still to move.
