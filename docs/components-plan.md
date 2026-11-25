@@ -1,6 +1,6 @@
 # Components plan
 
-PagerArchive's `web/src/lib` components (main at 6dfa1f0), sorted into generic UI that moves to ArchiveUx and app-specific ones that stay. **0.3.0 moved most of batch (a)** for RadioArchive (ADR 0002): `Menu`, `BottomBar`, `AccountMenu` and `Icon`, with three new parts of the frame, `Frame`, `AppSwitcher` and `LiveBadge`; `GroupPage` and `ReleaseNotice` are still to move. **0.4.0 moved `Suggest` and `DateRange`** from batch (b), for RadioArchive's search of recent calls, with times of day added to `DateRange` (ADR 0003); `SearchBox` (PagerArchive's query language) is still to move. PagerArchive still draws its own copies until it adopts them. What moves, and in what order, is the owner's decision of 2026-11-20 (ADR 0001, decision 12).
+PagerArchive's `web/src/lib` components (main at 6dfa1f0), sorted into generic UI that moves to ArchiveUx and app-specific ones that stay. **0.3.0 moved most of batch (a)** for RadioArchive (ADR 0002): `Menu`, `BottomBar`, `AccountMenu` and `Icon`, with three new parts of the frame, `Frame`, `AppSwitcher` and `LiveBadge`; `GroupPage` and `ReleaseNotice` are still to move. **0.4.0 moved `Suggest` and `DateRange`** from batch (b), for RadioArchive's search of recent calls, with times of day added to `DateRange` (ADR 0003); `SearchBox` (PagerArchive's query language) is still to move. **0.5.0 added the admin pages' building blocks** (ADR 0004), new in ArchiveUx, below. PagerArchive still draws its own copies until it adopts them. What moves, and in what order, is the owner's decision of 2026-11-20 (ADR 0001, decision 12).
 
 What moving one takes: its styles already use only tokens (PagerArchive R82c), but most import app modules (`api.ts`, `nav.ts`, `menu.svelte.ts`, `release.ts`). A component moves when those become props or callbacks, so ArchiveUx never calls an app's API. "Needs" lists what has to be cut loose.
 
@@ -26,6 +26,18 @@ Parts of the frame that neither app had, made for RadioArchive (RIKIKU/ArchiveUx
 | `Frame` | The shell: side menu, top bar, page, bottom bar, each a snippet; the optional app switcher and dock; notices placed above the dock |
 | `AppSwitcher` | A link in the top bar to the other app, by name, in the same tab; drawn by `Frame` only when the app names the other app |
 | `LiveBadge` | Live, Behind by N s, Delayed N min, in words (`.live-badge`, `live.js`) |
+
+## New in ArchiveUx (0.5.0, ADR 0004)
+
+The admin pages' building blocks, which RadioArchive's first admin pages drew as stand-ins (its ADR 0027) and both apps' admin pages share. Built new, not moved: PagerArchive's admin tables and inline confirmations draw their own, which the rules follow, and can move to these when it chooses.
+
+| Component | What it is |
+|---|---|
+| `StateBadge` | A thing's state in a word: OK, Warning, Error, neutral (`.state-badge`) |
+| `Banner` | An alert that stays: warning, error or info, no edge (`.banner`) |
+| `DataTable` | Sortable headers, an actions column, cards under 40rem (`table.js` for the order) |
+| `Confirm` | Asking before a destructive action, inline or in a modal dialog |
+| `MoreActions` | A disclosure button with a thing's other actions |
 
 ## Generic UI: to move
 

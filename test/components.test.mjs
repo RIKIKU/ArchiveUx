@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
+const NAMES = ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon', 'DateRange', 'Suggest', 'StateBadge', 'Banner', 'DataTable', 'Confirm', 'MoreActions'];
 let server;
 // Svelte's own render and snippets, through the same Vite, so they share its copy of Svelte.
 let render;
@@ -24,7 +25,7 @@ before(async () => {
 	});
 	({ render } = await server.ssrLoadModule('svelte/server'));
 	({ createRawSnippet } = await server.ssrLoadModule('svelte'));
-	for (const n of ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon', 'DateRange', 'Suggest']) c[n] = (await server.ssrLoadModule(`/src/components/${n}.svelte`)).default;
+	for (const n of NAMES) c[n] = (await server.ssrLoadModule(`/src/components/${n}.svelte`)).default;
 	c.index = await server.ssrLoadModule('/src/components/index.js');
 });
 after(() => server?.close());
@@ -34,8 +35,8 @@ const snip = (html) => createRawSnippet(() => ({ render: () => html }));
 const html = (C, props = {}) => render(C, { props }).body.replace(/<!--[^>]*-->/g, '');
 
 test('every component is in the index', () => {
-	for (const n of ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon', 'DateRange', 'Suggest']) assert.equal(typeof c.index[n], 'function', n);
-	assert.ok(['signin', 'switch', 'calendar', 'previous', 'next'].every((n) => c.index.iconNames.includes(n)));
+	for (const n of NAMES) assert.equal(typeof c.index[n], 'function', n);
+	assert.ok(['signin', 'switch', 'calendar', 'previous', 'next', 'sort-none', 'sort-up', 'sort-down', 'info', 'error', 'warning'].every((n) => c.index.iconNames.includes(n)));
 });
 
 test('the frame by default: no app switcher, no dock, nothing offset', () => {
@@ -192,4 +193,114 @@ test('Suggest: an ARIA combobox, its list closed and labelled, the count announc
 	const field = html(c.Suggest, { suggest: () => ({ options: [], what: 'suggestion' }), label: 'Channel', listLabel: 'Channels', showLabel: true, marker: 'required', invalid: true, id: 'ch' });
 	assert.match(field, /<label class="above[^"]*" for="ch">Channel <span class="required">required<\/span><\/label>/);
 	assert.match(field, /<input[^>]*id="ch"[^>]*required[^>]*aria-invalid="true"/);
+});
+
+// The admin pages' building blocks (0.5.0, ADR 0004).
+test('StateBadge: the state, and its word', () => {
+	assert.match(html(c.StateBadge, {}), /<span class="state-badge" data-state="ok">OK<\/span>/);
+	assert.match(html(c.StateBadge, { state: 'warning' }), /data-state="warning">Warning</);
+	assert.match(html(c.StateBadge, { state: 'error' }), /data-state="error">Error</);
+	assert.match(html(c.StateBadge, { state: 'neutral', text: 'Retired' }), /data-state="neutral">Retired</);
+	assert.match(html(c.StateBadge, { state: 'ok', text: 'Connected' }), />Connected</);
+});
+
+test('Banner: its tone, its icon hidden, a role only when asked', () => {
+	const out = html(c.Banner, { tone: 'error', title: 'Not saved', children: snip('<p>The server said no.</p>') });
+	assert.match(out, /<div class="banner[^"]*" data-tone="error">/);
+	assert.match(out, /<svg class="ui-icon"[^>]*aria-hidden="true"/);
+	assert.match(out, />Not saved</);
+	assert.match(out, /The server said no\./);
+	assert.doesNotMatch(out, /role=/);
+	assert.match(html(c.Banner, {}), /data-tone="warning"/);
+	assert.match(html(c.Banner, { tone: 'info', role: 'status' }), /data-tone="info" role="status"/);
+	assert.doesNotMatch(html(c.Banner, { icon: false }), /<svg/);
+});
+
+const columns = [
+	{ key: 'name', label: 'Name', sortable: true, primary: true },
+	{ key: 'calls', label: 'Calls', sortable: true, align: 'end', firstDir: 'descending' },
+	{ key: 'state', label: 'State', custom: true }
+];
+const rows = [
+	{ id: 1, name: 'TG 10', calls: 4, state: 'ok' },
+	{ id: 2, name: 'TG 9', calls: 12, state: 'warning' },
+	{ id: 3, name: 'Alpha', calls: null, state: 'neutral' }
+];
+const order = (out) => [...out.matchAll(/<th scope="row"[^>]*>\s*([^<]*?)\s*<\/th>/g)].map((m) => m[1]);
+
+test('DataTable: a captioned table, headers that sort, rows in order', () => {
+	const out = html(c.DataTable, { columns, rows, caption: 'Talkgroups', key: (r) => r.id, sort: { key: 'name', dir: 'ascending' } });
+	assert.match(out, /<table role="table"[^>]*>\s*<caption class="[^"]*visually-hidden[^"]*">Talkgroups<\/caption>/);
+	assert.equal((out.match(/<th scope="col"/g) ?? []).length, 3);
+	// Only the sorted column says aria-sort; only sortable columns are buttons.
+	assert.match(out, /<th scope="col"[^>]*aria-sort="ascending"[^>]*>\s*<button type="button" class="sort[^"]*"><span>Name<\/span>/);
+	assert.equal((out.match(/aria-sort=/g) ?? []).length, 1);
+	assert.equal((out.match(/class="sort /g) ?? []).length + (out.match(/class="sort"/g) ?? []).length, 2);
+	assert.match(out, /<th scope="col"[^>]*>\s*State\s*<\/th>/);
+	assert.deepEqual(order(out), ['Alpha', 'TG 9', 'TG 10']);
+	// Descending by calls: the empty one stays last.
+	assert.deepEqual(order(html(c.DataTable, { columns, rows, caption: 'T', sort: { key: 'calls', dir: 'descending' } })), ['TG 9', 'TG 10', 'Alpha']);
+	// The server sorted them: as given.
+	assert.deepEqual(order(html(c.DataTable, { columns, rows, caption: 'T', sort: { key: 'name', dir: 'ascending' }, sortRows: false })), ['TG 10', 'TG 9', 'Alpha']);
+	// Each value carries its label, for the narrow layout; the Sort by select is there for it.
+	assert.match(out, /<td role="cell"[^>]*>\s*<span class="label[^"]*">Calls<\/span>/);
+	assert.match(out, /<select id="[^"]+-sort"/);
+	assert.match(out, /<option value="calls:descending"[^>]*>Calls, descending<\/option>/);
+	// The polite announcement of a sort.
+	assert.match(out, /aria-live="polite"/);
+});
+
+test('DataTable: a custom cell, an actions column named for screen readers, and nothing to show', () => {
+	const out = html(c.DataTable, {
+		columns,
+		rows,
+		caption: 'Talkgroups',
+		cell: createRawSnippet((row, col) => ({ render: () => `<b>${row()[col().key]}</b>` })),
+		actions: createRawSnippet((row) => ({ render: () => `<button type="button">Edit ${row().name}</button>` }))
+	});
+	assert.match(out, /<b>warning<\/b>/);
+	assert.match(out, /<th scope="col" class="actions[^"]*"><span class="visually-hidden">Actions<\/span><\/th>/);
+	assert.equal((out.match(/>Edit TG/g) ?? []).length, 2);
+	const none = html(c.DataTable, { columns, rows: [], caption: 'Talkgroups', empty: 'No talkgroups yet.' });
+	assert.match(none, /<p class="empty[^"]*">No talkgroups yet\.<\/p>/);
+	assert.doesNotMatch(none, /<table|<select/);
+	// stack="never" scrolls instead of stacking.
+	assert.match(html(c.DataTable, { columns, rows, caption: 'T', stack: 'never' }), /class="data-table never/);
+});
+
+test('Confirm: the question, what happens, the action named, a danger button then Cancel', () => {
+	const props = { title: 'Delete Channel 5?', confirmLabel: 'Delete Channel 5', onconfirm: () => {}, oncancel: () => {}, children: snip('<p>Its 40 calls go too. This cannot be undone.</p>') };
+	const out = html(c.Confirm, props);
+	assert.match(out, /<section class="confirm inline[^"]*" aria-labelledby="([^"]+)-title">/);
+	assert.match(out, /<h2 class="title[^"]*" id="[^"]+-title" tabindex="-1">Delete Channel 5\?<\/h2>/);
+	assert.match(out, /cannot be undone/);
+	const buttons = [...out.matchAll(/<button[^>]*>([^<]*)<\/button>/g)];
+	assert.deepEqual(buttons.map((b) => b[1]), ['Delete Channel 5', 'Cancel']);
+	assert.match(buttons[0][0], /class="danger/);
+	assert.match(buttons[1][0], /class="secondary/);
+	// Not destructive: a primary button. A heading under a section: h3.
+	assert.doesNotMatch(html(c.Confirm, { ...props, danger: false }).match(/<button[^>]*>/)[0], /danger/);
+	assert.match(html(c.Confirm, { ...props, level: 3 }), /<h3 class="title/);
+	// Modal: a dialog, labelled and described.
+	const modal = html(c.Confirm, { ...props, modal: true });
+	assert.match(modal, /<dialog class="confirm modal[^"]*" aria-labelledby="[^"]+-title" aria-describedby="[^"]+-what">/);
+	// A problem, said in the panel.
+	assert.match(html(c.Confirm, { ...props, error: 'Someone else changed it.' }), /<p class="field-error[^"]*" role="alert">Someone else changed it\.<\/p>/);
+});
+
+test('MoreActions: a closed disclosure, named for its thing, the actions hidden until it opens', () => {
+	const out = html(c.MoreActions, { label: 'More actions: Channel 5', children: snip('<button type="button" class="danger">Delete</button>') });
+	const button = out.match(/<button[^>]*aria-expanded[^>]*>/)[0];
+	assert.match(button, /aria-expanded="false"/);
+	assert.match(button, /aria-label="More actions: Channel 5"/);
+	const id = button.match(/aria-controls="([^"]+)"/)[1];
+	assert.match(out, new RegExp(`<div class="panel end[^"]*" id="${id}" hidden`));
+	assert.match(out, /<span class="tooltip" aria-hidden="true">More actions<\/span>/);
+	assert.doesNotMatch(out, /role="menu"/);
+	// Open, with words: no tooltip, pressed.
+	const open = html(c.MoreActions, { open: true, text: 'Actions', align: 'start', children: snip('<button type="button">Rename</button>') });
+	assert.match(open, /aria-expanded="true"/);
+	assert.match(open, /<span>Actions<\/span>/);
+	assert.doesNotMatch(open, /class="tooltip/);
+	assert.match(open, /<div class="panel start[^"]*" id="[^"]+"(?! hidden)/);
 });

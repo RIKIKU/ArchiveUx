@@ -129,6 +129,7 @@
 		>
 		<a href="./frame.html?look={look}{theme === 'auto' ? '' : `&theme=${theme}`}">The frame: menu, bottom bar, account menu, app switcher, dock</a>
 		<a href="./search.html?look={look}{theme === 'auto' ? '' : `&theme=${theme}`}">Search controls: the range calendar (with and without times) and suggestions</a>
+		<a href="./admin.html?look={look}{theme === 'auto' ? '' : `&theme=${theme}`}">Admin pages: state badges, banners, the data table, asking before deleting, more actions</a>
 	</div>
 	<p class="status">
 		{look === 'console' ? 'Console' : 'Harbour'}, {scheme}: {measured.length} pairings measured, {measured.length - failing.length} pass,

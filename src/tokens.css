@@ -20,7 +20,8 @@
    owner's decisions of 2026-11-20). 0.1.0's --alert-edge was taken off in
    0.1.1 (the owner, 2026-11-20): an admin alert is its --warn-bg fill only. 0.3.0 added the
    frame's (--frame-menu-width, --dock-offset, --dock-height) and the LED
-   colours (--led-*, --led-size), for RadioArchive (ADR 0002). The map's tokens (--map-*, --detail-map-width,
+   colours (--led-*, --led-size), for RadioArchive (ADR 0002); 0.5.0 an error's
+   soft fill, --danger-soft, for the admin pages (ADR 0004). The map's tokens (--map-*, --detail-map-width,
    --area-tag-*) stay in PagerArchive. References such as R77b, M24 or
    ADR 0015 in the comments are PagerArchive's SPEC.md and docs/adr. */
 
@@ -95,6 +96,11 @@
 	--danger-fg: light-dark(#ffffff, #2b0000);
 	--danger-hover: light-dark(#93201a, #ffa49b);
 	--danger-text: light-dark(#9e1d16, #ffb7ae);
+	/* 0.5.0 (ADR 0004): an error's soft fill, as --warn-bg is a warning's:
+	   the Error state badge and the error banner, with --danger-text on it
+	   (state-error, banner-error in pairs.json). The shades of Harbour's
+	   Emergency label. */
+	--danger-soft: light-dark(#fde4e1, #4b1f1b);
 
 	/* How each priority is shown (R82c): a label with a dot, tinted; rows
 	   plain. --<priority>-bg is the priority's own colour, also the map's
@@ -352,6 +358,9 @@
 	--danger-fg: light-dark(#ffffff, #1f0000);
 	--danger-hover: light-dark(#8f1212, #ff9a9a);
 	--danger-text: light-dark(#b31818, #ff8585);
+	/* 0.5.0 (ADR 0004): an error's soft fill, as Console's --warn-bg is a
+	   warning's: a light red tint, and a dark red one. */
+	--danger-soft: light-dark(#fbe4e4, #3a1515);
 
 	/* How each priority is shown (R82c): a 4 px edge down the row and an
 	   outlined capital label, no dot, no tint. --<priority>-bg is the

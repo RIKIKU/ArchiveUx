@@ -2,7 +2,7 @@
 
 For agents building PagerArchive, RadioArchive or any other archive app. The rules are normative: **must** means CI or review fails you, **should** means do it unless the rule's reason doesn't apply and you say why in the pull request.
 
-The tokens are in `src/tokens.css`; the base styles in `src/base.css`; the Svelte components in `src/components` (the frame, 0.3.0; `DateRange` and `Suggest`, 0.4.0), with `archiveux/dates.js`; the pairings the contrast check measures in `contrast/pairs.json`; the gallery (`npm run gallery`) shows all of it in each look and theme. Decisions are in `docs/adr`.
+The tokens are in `src/tokens.css`; the base styles in `src/base.css`; the Svelte components in `src/components` (the frame, 0.3.0; `DateRange` and `Suggest`, 0.4.0; the admin pages' `StateBadge`, `Banner`, `DataTable`, `Confirm` and `MoreActions`, 0.5.0), with `archiveux/dates.js`; the pairings the contrast check measures in `contrast/pairs.json`; the gallery (`npm run gallery`) shows all of it in each look and theme. Decisions are in `docs/adr`.
 
 ## 1. Using tokens
 
@@ -60,6 +60,8 @@ Example:
 | `--accent-soft-fg` | The current page in a menu, a pressed secondary button | `--accent-soft` | text |
 | `--danger-fg` | Danger button text | `--danger`, `--danger-hover` | text |
 | `--danger-text` | Error messages; a field's error under it (section 5) | `--bg`, `--surface`, `--surface-2` | text |
+| `--danger-text` | A destructive action in More actions (section 4) | `--surface-2`, `--hover` | text |
+| `--control-border` | A neutral state badge's outline (section 4) | `--bg`, `--surface`, `--surface-2`, `--hover` | edge |
 | `--danger` | An invalid control's border (`aria-invalid`, section 5) | `--bg`, `--surface`, `--surface-2` | edge |
 | `--warn-fg` | Warnings, caveats, flags | `--warn-bg` | text |
 | `--ok-fg` | The Live dot, and the Live badge's dot (section 4) | `--bg`, `--surface` | edge |
@@ -79,9 +81,10 @@ Example:
 | Token (fill) | Its text | Purpose |
 |---|---|---|
 | `--accent`, `--accent-hover`, `--accent-pressed` | `--accent-fg` | Primary button, its hover and press |
-| `--accent-soft` | `--accent-soft-fg`, or `--fg` (`.ok`) | Current page, pressed, a saved message |
+| `--accent-soft` | `--accent-soft-fg`, or `--fg` (`.ok`) | Current page, pressed, a saved message; the OK state badge and the info banner (0.5.0) |
+| `--danger-soft` | `--danger-text` | An error's soft fill: the Error state badge and the error banner (0.5.0, ADR 0004) |
 | `--danger`, `--danger-hover` | `--danger-fg` | Danger button |
-| `--warn-bg` | `--warn-fg` | Warnings, caveats, alerts (an alert is the fill only, no edge: section 4); the Delayed badge |
+| `--warn-bg` | `--warn-fg` | Warnings, caveats, alerts (an alert is the fill only, no edge: section 4); the Delayed badge; the Warning state badge and the warning banner |
 | `--fg` | `--bg` | Tooltip |
 | `--heat-N` (N = 0..4) | `--heat-N-fg`, its own step's | A heat grid's cells, none to most |
 
@@ -220,6 +223,89 @@ On `--bg` or `--surface` (the dock). A delayed call is never Live. The app offer
 
 - Alerts that stay (an admin's backup or upgrade alert) are not toasts and have no timing, and they are not must-notice (section 3): they are noticed by where they sit and what they say.
 - Look: fill `--warn-bg`, text and links `--warn-fg`, `--radius`, padded `--space-sm` `--space-md`, and **no edge** (the owner, 2026-11-20: "The amber edge is very intense. I prefer it without."). 0.1.0 gave them a `--border-width-strong` amber `--alert-edge`; 0.1.1 took the edge and the token off.
+- **The class is `.banner`** (0.5.0, ADR 0004), or `Banner`, which adds the tone's icon and an optional title. Three tones, each its fill and its own text, all without an edge:
+
+| Tone (`data-tone`) | When | Fill | Text and links | Icon |
+|---|---|---|---|---|
+| `warning` (the default) | Something needs an admin's eye: the disk filling, a backup old | `--warn-bg` | `--warn-fg` | `warning` |
+| `error` | Something failed and the page can't do its job: the server unreachable, a save refused | `--danger-soft` | `--danger-text` | `error` |
+| `info` | A fact about the page worth saying once: where things are added | `--accent-soft` | `--accent-soft-fg` | `info` |
+
+  ```html
+  <div class="banner" data-tone="error"><p>Couldn't reach the server. The page will try again in a minute.</p></div>
+  ```
+  ```svelte
+  <Banner tone="error" title="Couldn't reach the server" role="alert"><p>The page will try again in a minute.</p></Banner>
+  ```
+- The words say the tone; the icon is hidden. Links in it take its text colour, underlined and `--weight-strong`. At most `--measure` wide. A banner there when the page opens has no role; one that appears because something just went wrong has `role="alert"` (`role="status"` for good news). A form's problems are not a banner: they go under their fields (section 5).
+- Pairs: `banner-warning`, `banner-error`, `banner-info` (text), `banner-focus` (a focused link's ring on each fill). The lowest: the error text 5.66 (Console light), the ring 4.78.
+
+### State badges
+
+0.5.0 (ADR 0004). A thing's state in **a word**: a recorder Connected, a talkgroup Hidden, a job Failed. `<span class="state-badge" data-state="warning">Warning</span>` (`.state-badge` in `base.css`), or `StateBadge` (`state`, and `text` or children; the words default to OK, Warning and Error).
+
+| State | Means | Look | Pair |
+|---|---|---|---|
+| `ok` | Working, as it should be | `--accent-soft-fg` on `--accent-soft` | `state-ok` |
+| `warning` | Working, but look at it | `--warn-fg` on `--warn-bg` | `state-warning` |
+| `error` | Not working | `--danger-text` on `--danger-soft` | `state-error` |
+| `neutral` | Neither: off, hidden, retired, never seen | `--muted`, a `--border-width` `--control-border` outline, no fill | `state-neutral`, `state-neutral-edge` |
+
+- The word is the cue, never the colour (WCAG 1.4.1), and it is the app's: say what the state is ("Quiet", "Deaf", "Retired") rather than only OK or Warning. A neutral state always has its own word.
+- Sized and cased as the priority labels (`--badge-pad-*`, `--radius-badge`, `--badge-case`, `--badge-tracking`, `--text-xs`, `--weight-strong`), so Console writes it in capitals. On `--bg`, `--surface`, `--surface-2` or a hovered row. It is not a control: a badge that does something is a button.
+- Lowest: the error 5.66 (Console light), the neutral word 6.19 and its outline 3.36 (Harbour light, on a hovered row).
+
+### Data tables
+
+0.5.0 (ADR 0004). `DataTable`: an admin page's things, one row each (talkgroups, units, accounts, the audit log). Not for a page's own list of records, which is page rows (above).
+
+```svelte
+<DataTable caption="Talkgroups" {columns} rows={talkgroups} key={(t) => t.id} bind:sort>
+  {#snippet cell(t, column)}<StateBadge state={t.hidden ? 'neutral' : 'ok'} text={t.hidden ? 'Hidden' : 'Listed'} />{/snippet}
+  {#snippet actions(t)}
+    <a class="button secondary" href="/admin/talkgroups/{t.id}" aria-label="Edit {t.name}">Edit</a>
+    <MoreActions label="More actions: {t.name}"><button type="button" class="danger" onclick={() => (asking = t)}>Delete…</button></MoreActions>
+  {/snippet}
+</DataTable>
+```
+
+- **Columns** (`table.js`'s `Column`): `key` (the row's field), `label`, and as needed `sortable`, `firstDir` (`'descending'` for newest or most first), `align: 'end'` (numbers; the table uses tabular figures), `primary` (the row's name: a row header, `th scope="row"`), `custom` (drawn by the `cell` snippet), `value(row)` (what it sorts by, if not `row[key]`) and `text(row)` (what it shows). Every table has a `caption` (its accessible name; `showCaption` to show it).
+- **Sorting**: a sortable header is a button with the label and an arrow (`sort-none` in `--muted`; `sort-up` or `sort-down` in `--fg` on the sorted one), and the sorted column has `aria-sort`. Pressing a header sorts by it in its first direction, again reverses it. The change is announced politely ("Sorted by Calls, descending"). Text sorts by the collator, numbers as numbers ("TG 9" before "TG 10"), and empty values go last either way, ties keeping their order (`sortRows` in `table.js`). The table sorts its rows itself; when the server sorts (a paged list), pass `sortRows={false}` and fetch on `onsort`, in the same order.
+- **Actions**: the `actions` snippet fills a last column whose header is for screen readers only ("Actions", `actionsLabel`). One or two plain actions as secondary buttons, the rest in `MoreActions`; each action's accessible name names its row ("Edit North Fire"). A destructive one asks first (Confirming).
+- **Narrow**: under 40rem of its own width (a container query, so a phone's 375 px and a narrow card alike), each row is a card: the row's name as its title, each value under its label (`--muted`, `--label-min` wide), the actions at its foot, and the headers become a **Sort by** select. The cells keep their table roles, so a screen reader still reads a table. `stack="never"` keeps the table and scrolls it sideways instead (a wide log where a card per row would be too long); there a More actions list can be clipped, so prefer buttons.
+- No rows: the `empty` line (`--muted`) instead of the table.
+- Look: `--text-sm`, cells padded `--space-xs` `--space-md`, `--border` dividers (a `--border-width-strong` one under the headers), a hovered row `--hover`, headers `--fg` `--weight-strong`. On `--bg` or `--surface`.
+- Pairs: `table-text`, `table-muted`, `table-link`, `table-sort-pressed` (text), `table-sort-icon`, `table-focus`, `table-control` (edges), each on `--bg`, `--surface` and `--hover`. The lowest: the buttons' borders 3.36 on a hovered row (Harbour light), links 5.73.
+
+### Confirming
+
+0.5.0 (ADR 0004). A destructive action (delete, retire, shorten retention, sign everyone out) **asks first**, with `Confirm`; anything that can be undone in a click doesn't.
+
+```svelte
+{#if asking}
+  <Confirm title="Delete {asking.name}?" confirmLabel="Delete {asking.name}" level={3}
+    onconfirm={() => remove(asking)} oncancel={() => (asking = null)}>
+    <p>Its 40 calls are deleted with it. This can't be undone.</p>
+  </Confirm>
+{/if}
+```
+
+- **The question is the heading** and names the thing ("Delete North Fire?"); what follows says what will happen and whether it can be undone, with counts where there are any. **The confirm button says the action** ("Delete North Fire", "Shorten to 30 days"), never "OK" or "Yes", and is a **danger** button (`danger={false}` for a primary one); **Cancel** (a secondary button) comes after it.
+- **Inline, by default**: a panel where it's drawn, under the form or the table it's about, `--surface-2` with a `--border-width` `--control-border` edge, `--radius`, at most `--measure`. Its heading takes the focus, so the question is read first. Use it when the question belongs next to what's asked about.
+- **`modal`**: a modal `<dialog>` over `--scrim`, at most `--dialog-width` (and `--panel-max`), labelled by its heading and described by its words. **Cancel takes the focus**, so Enter never confirms by accident. Use it when the question would otherwise be off-screen (a row's action in a long table on a phone).
+- Escape cancels either. When it goes, the focus returns to what asked (the button, or More actions), if that is still on the page.
+- `onconfirm` may be async: both buttons wait while it runs. If it throws, the panel stays and says so (`error`, or "That didn't work. Try again.") in `--danger-text`. `level` sets the heading's level (2 by default).
+- Pairs: `confirm-text`, `confirm-error` (text on `--surface-2`), `confirm-edge` (on `--bg` and `--surface`), `confirm-focus`; the buttons keep theirs (`button`, `danger-button`, `control-border`). The lowest: the edge 3.62 (Harbour light, on the page).
+
+### More actions
+
+0.5.0 (ADR 0004). `MoreActions`: a button that shows a short list of a thing's other actions, where there's room for one or two buttons only (a table row, a card, a phone). It is the **disclosure** pattern (`aria-expanded`, `aria-controls`), not an ARIA menu: Tab moves through the actions, as through any buttons, and there are no arrow-key rules to learn.
+
+- **The button**: a secondary button with the `more` icon, `--target` square, with the tooltip "More actions" (`tip`); with `text`, the icon and the words. Its accessible name says whose actions they are: `label="More actions: North Fire"`. Open, it shows pressed (`--accent-soft`, `--accent-soft-fg`, an `--accent` edge).
+- **The list**: under the button, lined up with its end (`align="end"`, the default) or start, `--surface-2` with a `--control-border` edge, `--radius`, at least `--field-wide`, `--layer-overlay`. Its children are buttons and links, each a row at least `--target` high, `--fg`, hover `--hover`; `<hr>` divides groups; a destructive one has `class="danger"` (`--danger-text`), ends in "…" and asks first.
+- Choosing an action closes it and puts the focus back on the button (a `Confirm` that opens then takes it, and gives it back to the button). Escape closes it and gives the focus back; a click or focus outside closes it. Escape also hides the tooltip (WCAG 1.4.13).
+- Pairs: `more-item`, `more-danger`, `more-open` (text), `more-edge`, `more-open-edge`, `more-focus` (edges). The lowest: the list's edge 3.36 over a hovered row (Harbour light), the danger words 6.13.
+
 ### Page rows
 
 - A row is a list item across the list's width: `--row-pad-y` top and bottom, `--row-pad-x` at the start, `--row-pad-end` at the end, a `--border-width` `--border` divider below.
@@ -331,4 +417,4 @@ Bad: `Name *`, `Note (optional)`, a marker that is easy to miss (0.2.0's grey "�
 
 ## 6. Gallery
 
-`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice, a working form, the LEDs with their lowest ratio, the Live badge), and the other tokens' values, for the look and theme chosen at the top. Its second page, `frame.html`, is the whole frame with made-up content: the side menu, the bottom bar, the account menu signed in or out, the app switcher, the dock and a notice above it, each switched on and off on the page or from the address (`?dock=0`, `?switcher=0`, `?signedin=1`, `?shrunk=1`, `?notice=1`, `?look=console`, `?theme=dark`). Its third page, `search.html`, has `DateRange` without and with times, each in a form whose fields it shows (with `rangeBounds`), and `Suggest` with made-up channels. Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.
+`npm run gallery` serves it locally; CI builds it, and on `main` publishes it with GitHub Pages. It shows every token as a swatch with its contrast against `--bg` and `--fg`, every pairing with its ratio and result, the samples above (text, buttons, focus rings, an alert, the heat grid with each step's ratio, rows and labels, a working notice, a working form, the LEDs with their lowest ratio, the Live badge), and the other tokens' values, for the look and theme chosen at the top. Its second page, `frame.html`, is the whole frame with made-up content: the side menu, the bottom bar, the account menu signed in or out, the app switcher, the dock and a notice above it, each switched on and off on the page or from the address (`?dock=0`, `?switcher=0`, `?signedin=1`, `?shrunk=1`, `?notice=1`, `?look=console`, `?theme=dark`). Its third page, `search.html`, has `DateRange` without and with times, each in a form whose fields it shows (with `rangeBounds`), and `Suggest` with made-up channels. Its fourth page, `admin.html` (0.5.0), has the state badges, the banners, a `DataTable` that sorts with actions and More actions (and the same table in a narrow card, stacked), `Confirm` inline and in a dialog, and `MoreActions` alone (`?ask=inline`, `?ask=modal` and `?menu=1` open them). Its numbers are measured from the page's own computed colours with the same pairs and floors as CI.
