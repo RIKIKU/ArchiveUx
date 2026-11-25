@@ -1,5 +1,6 @@
-// ArchiveUx's components (0.3.0: the frame, ADR 0002). Svelte 5; import
-// them from an app built with Vite or SvelteKit:
+// ArchiveUx's components (0.3.0: the frame, ADR 0002; 0.4.0: DateRange and
+// Suggest, ADR 0003; 0.5.0: the admin pages' building blocks, ADR 0004).
+// Svelte 5; import them from an app built with Vite or SvelteKit:
 //
 //   import { Frame, Menu, BottomBar, AccountMenu } from 'archiveux/components';
 //
@@ -13,4 +14,10 @@ export { default as LiveBadge } from './LiveBadge.svelte';
 export { default as Icon } from './Icon.svelte';
 export { default as DateRange } from './DateRange.svelte';
 export { default as Suggest } from './Suggest.svelte';
+export { default as StateBadge } from './StateBadge.svelte';
+export { default as Banner } from './Banner.svelte';
+export { default as DataTable } from './DataTable.svelte';
+export { default as Confirm } from './Confirm.svelte';
+export { default as MoreActions } from './MoreActions.svelte';
 export { icons, iconNames } from './icons.js';
+export { sortRows, nextSort, sortWords, valueOf, textOf, compare } from './table.js';

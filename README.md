@@ -7,7 +7,7 @@ The shared design system of the archive apps (PagerArchive, RadioArchive): one l
 - **Rules** for agents building the apps: each token's purpose and allowed pairings, the WCAG AA contrast floor, and component patterns ([docs/design-system.md](docs/design-system.md)). Decisions: [docs/adr](docs/adr).
 - **A contrast check**, run in CI, over every allowed pairing in both looks and both themes ([contrast/pairs.json](contrast/pairs.json)).
 - **A gallery** of every token, pairing and pattern, the owner's review tool.
-- **Svelte components**: the frame (0.3.0) with its optional app switcher and dock, the side menu, the bottom bar, the account menu (signed in or out), the Live badge and icons; the range calendar `DateRange`, with times of day if the app asks, and the combobox `Suggest` (0.4.0) (`src/components`); the look's first-paint rule (`src/look.js`), the Live badge's words (`src/live.js`) and a range as instants (`src/dates.js`). The rest move as [docs/components-plan.md](docs/components-plan.md) says.
+- **Svelte components**: the frame (0.3.0) with its optional app switcher and dock, the side menu, the bottom bar, the account menu (signed in or out), the Live badge and icons; the range calendar `DateRange`, with times of day if the app asks, and the combobox `Suggest` (0.4.0); the admin pages' `StateBadge`, `Banner`, `DataTable`, `Confirm` and `MoreActions` (0.5.0) (`src/components`); the look's first-paint rule (`src/look.js`), the Live badge's words (`src/live.js`) and a range as instants (`src/dates.js`). The rest move as [docs/components-plan.md](docs/components-plan.md) says.
 
 ## Using it in an app
 
@@ -42,6 +42,8 @@ The components are Svelte 5, for an app built with Vite or SvelteKit (rules, sec
   // 0.4.0: search controls, and a range picked with times as UTC instants
   import { DateRange, Suggest } from 'archiveux/components';
   import { rangeBounds } from 'archiveux/dates.js';
+  // 0.5.0: admin pages
+  import { StateBadge, Banner, DataTable, Confirm, MoreActions } from 'archiveux/components';
 </script>
 ```
 
@@ -50,6 +52,20 @@ The components are Svelte 5, for an app built with Vite or SvelteKit (rules, sec
 ```svelte
 <DateRange {from} {to} times {fromTime} {toTime} timeZone="Australia/Melbourne"
   onchange={(from, to, fromTime, toTime) => search(rangeBounds({ from, to, fromTime, toTime }, "Australia/Melbourne"))} />
+```
+
+An admin table with a state, its actions, and a question before deleting (rules, section 4):
+
+```svelte
+<DataTable caption="Talkgroups" {columns} rows={talkgroups} key={(t) => t.id} bind:sort>
+  {#snippet cell(t)}<StateBadge state={t.hidden ? 'neutral' : 'ok'} text={t.hidden ? 'Hidden' : 'Listed'} />{/snippet}
+  {#snippet actions(t)}
+    <MoreActions label="More actions: {t.name}"><button type="button" class="danger" onclick={() => (asking = t)}>Delete…</button></MoreActions>
+  {/snippet}
+</DataTable>
+{#if asking}
+  <Confirm title="Delete {asking.name}?" confirmLabel="Delete {asking.name}" onconfirm={() => remove(asking)} oncancel={() => (asking = null)} />
+{/if}
 ```
 
 To upgrade, read [CHANGELOG.md](CHANGELOG.md) from your tag to the new one, change the tag in `package.json` and run `npm install`.

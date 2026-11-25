@@ -2,6 +2,25 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.5.0
+
+The admin pages' building blocks, which RadioArchive's first admin pages (its ADR 0027) found missing and drew from tokens as stand-ins: a state badge, a banner, a data table, a way to ask before a destructive action, and More actions (ADR 0004, proposed: the implementer's calls, for the owner's review).
+
+**Nothing changes for an app that doesn't opt in** (PagerArchive, RadioArchive today): every existing token keeps its value in both looks and both themes, no existing rule in `base.css` changes, and the new token, classes, components and icons have names neither app uses. Moving from 0.4.1 needs no change in the app.
+
+- **`StateBadge`** and **`.state-badge[data-state=ok|warning|error|neutral]`**: a thing's state in a word. OK `--accent-soft-fg` on `--accent-soft`, Warning `--warn-fg` on `--warn-bg`, Error `--danger-text` on `--danger-soft`, neutral `--muted` in a `--control-border` outline. Props `state`, `text` (or children); words default to OK, Warning, Error.
+- **`Banner`** and **`.banner[data-tone=warning|error|info]`**: the alert that stays (rules, section 4, "Alerts") as a class, in three tones, each its fill and its own text, no edge. `Banner` adds the tone's icon (`icon={false}` for none), an optional `title`, and `role` (none by default; `alert` or `status`). An app drawing its own `--warn-bg` alert **may** move to `<div class="banner">`, which draws the same.
+- **`DataTable`**: `columns` (`key`, `label`, `sortable`, `firstDir`, `align`, `primary`, `custom`, `value`, `text`), `rows`, `caption`, `key`, bindable `sort` (`{ key, dir }`), `onsort`, `sortRows` (false when the server sorts), `cell(row, column)` and `actions(row)` snippets, `actionsLabel`, `empty`, `stack` (`auto`, `never`), `rowProps(row)`. Sortable headers are buttons with `aria-sort` and an announcement; under 40rem of its own width each row becomes a card and the headers a Sort by select.
+- **`table.js`** (`archiveux/components`): `sortRows`, `nextSort`, `sortWords`, `valueOf`, `textOf`, `compare`; the order a server sorting for a table follows.
+- **`Confirm`**: `title` (the question), children (what happens), `confirmLabel` (the action), `cancelLabel`, `onconfirm` (may be async), `oncancel`, `danger` (default true), `modal` (a `<dialog>`; default inline), `busy`, `error`, `level`. Focus to the heading (inline) or Cancel (modal), Escape cancels, focus back to what asked.
+- **`MoreActions`**: a disclosure button (`label`, `tip`, `text`, `align`, bindable `open`) and its list of the children's buttons and links (`class="danger"` for a destructive one, `<hr>` between groups); Escape, an outside click or choosing an action closes it, the focus back on the button.
+- **New token `--danger-soft`** (both looks, both themes): an error's soft fill. Harbour `#fde4e1` / `#4b1f1b` (its Emergency label's), Console `#fbe4e4` / `#3a1515`.
+- **Icons**: `sort-none`, `sort-up`, `sort-down`, `info`, `error`.
+- **Rules** (section 4: "Alerts" gains `.banner`; new "State badges", "Data tables", "Confirming", "More actions"; section 2's tables), the components plan, and ADR 0004.
+- **Contrast check**: new pairs `state-ok`, `state-warning`, `state-error`, `state-neutral`, `state-neutral-edge`, `banner-warning`, `banner-error`, `banner-info`, `banner-focus`, `table-text`, `table-muted`, `table-link`, `table-sort-pressed`, `table-sort-icon`, `table-focus`, `table-control`, `confirm-text`, `confirm-error`, `confirm-edge`, `confirm-focus`, `more-item`, `more-danger`, `more-open`, `more-edge`, `more-open-edge`, `more-focus`; 976 measurements, all passing (the lowest new one 3.36, a control's border on a hovered row, Harbour light). `contrast/findings.json` stays empty.
+- **Gallery**: a fourth page, `admin.html`, with every state and tone, a table that sorts with actions and More actions, the same table narrow, and asking inline and in a dialog.
+- **Tests**: the five components rendered on the server, and `table.js`'s order.
+
 ## 0.4.1
 
 The owner's review of ADR 0002's decisions 7-13 (2026-11-25): all accepted, with one change. **Live now means within 5 s of the live edge, not 2 s.**
