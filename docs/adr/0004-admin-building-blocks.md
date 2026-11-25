@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed (the implementer's calls, 2026-11-25), done in 0.5.0, for the owner's review after the 0.5.0 demo, as ADR 0002's and 0003's calls were.
+Accepted (2026-11-25, by the owner). The implementer's calls, done in 0.5.0.
 
 ## Context
 
