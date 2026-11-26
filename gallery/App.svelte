@@ -8,6 +8,8 @@
 	import known from '../contrast/findings.json';
 	import { looks, over, parseColour, ratio, resolve, tokensOf } from '../scripts/tokens.mjs';
 	import LiveBadge from '../src/components/LiveBadge.svelte';
+	import ErrorSummary from '../src/components/ErrorSummary.svelte';
+	import { tick } from 'svelte';
 
 	const leds = ['red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple', 'pink'];
 
@@ -99,10 +101,23 @@
 		if (!form.capcode && !form.alias) p.pages = 'Choose at least one capcode or alias.';
 		problems = p;
 		const n = Object.keys(p).length;
-		summary = n ? `${n} ${n === 1 ? 'field needs' : 'fields need'} attention` : 'Saved (a demo: nothing is sent).';
-		const first = ['name', 'secret', 'headerValue', 'pages'].find((k) => p[k]);
-		if (first) requestAnimationFrame(() => document.getElementById(first === 'pages' ? 'g-capcode' : `g-${first}`)?.focus());
+		summary = n ? '' : 'Saved (a demo: nothing is sent).';
+		// The summary takes the focus (0.6.0); its links lead to each field.
+		if (n) tick().then(() => errorSummary?.focus());
 	}
+	/** @type {{ focus(): void } | undefined} */
+	let errorSummary = $state();
+	// Each problem, named by its field and linked to its control, in the form's order.
+	const listed = $derived(
+		[
+			['name', 'g-name', 'Name'],
+			['secret', 'g-secret', 'Secret'],
+			['headerValue', 'g-headerValue', 'Header value'],
+			['pages', 'g-capcode', 'Pages']
+		]
+			.filter(([k]) => problems[k])
+			.map(([k, id, label]) => ({ id, label, message: problems[k] }))
+	);
 
 	// The notice demo: the release notice's timing (docs/design-system.md).
 	const HOLD = 8000;
@@ -245,11 +260,12 @@
 			<div class="card">
 				<h3>Forms</h3>
 				<p class="muted small">
-					An outlined Required tag in the label (part of its name: "Name required"); unmarked is optional. A conditional field says when, after its tag. A group's rule is a hint under it. Save with gaps: each problem under its field, focus to the first, the top
-					line only counts.
+					An outlined Required tag in the label (part of its name: "Name required"); unmarked is optional. A conditional field says when, after its tag. A group's rule is a hint under it. Save with gaps: each problem under its field, and at the top an error
+					summary, which takes the focus, naming each field with a link to it.
 				</p>
 				<form class="demo-form" novalidate onsubmit={save}>
-					{#if summary}<p class={Object.keys(problems).length ? 'error' : 'ok'} aria-live="polite">{summary}</p>{/if}
+					<ErrorSummary bind:this={errorSummary} problems={listed} level={4} />
+					{#if summary}<p class="ok" aria-live="polite">{summary}</p>{/if}
 					<div class="field">
 						<label for="g-name">Name <span class="required">required</span></label>
 						<input id="g-name" required bind:value={form.name} aria-invalid={problems.name ? 'true' : undefined} aria-describedby={describe(problems.name && 'g-name-error')} />

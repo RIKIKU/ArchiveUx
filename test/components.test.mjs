@@ -5,10 +5,11 @@
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { createServer } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
-const NAMES = ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon', 'DateRange', 'Suggest', 'StateBadge', 'Banner', 'DataTable', 'Confirm', 'MoreActions'];
+const NAMES = ['Frame', 'Menu', 'BottomBar', 'AccountMenu', 'AppSwitcher', 'LiveBadge', 'Icon', 'DateRange', 'Suggest', 'StateBadge', 'Banner', 'DataTable', 'Confirm', 'MoreActions', 'ErrorSummary'];
 let server;
 // Svelte's own render and snippets, through the same Vite, so they share its copy of Svelte.
 let render;
@@ -38,6 +39,7 @@ test('every component is in the index', () => {
 	for (const n of NAMES) assert.equal(typeof c.index[n], 'function', n);
 	assert.ok(['signin', 'switch', 'calendar', 'previous', 'next', 'sort-none', 'sort-up', 'sort-down', 'info', 'error', 'warning'].every((n) => c.index.iconNames.includes(n)));
 	assert.equal(typeof c.index.openPicker, 'function');
+	assert.equal(typeof c.index.focusField, 'function');
 });
 
 test('the frame by default: no app switcher, no dock, nothing offset', () => {
@@ -304,4 +306,47 @@ test('MoreActions: a closed disclosure, named for its thing, the actions hidden 
 	assert.match(open, /<span>Actions<\/span>/);
 	assert.doesNotMatch(open, /class="tooltip/);
 	assert.match(open, /<div class="panel start[^"]*" id="[^"]+"(?! hidden)/);
+});
+
+test('ErrorSummary: a title counting the fields, and a link to each, naming it', () => {
+	const problems = [
+		{ id: 'g-name', label: 'Name', message: 'Give it a name.' },
+		{ id: 'g-capcode', label: 'Pages', message: 'Choose at least one capcode or alias.' }
+	];
+	const out = html(c.ErrorSummary, { problems });
+	const box = out.match(/<div class="error-summary[^"]*"[^>]*>/)?.[0];
+	assert.ok(box, out);
+	assert.match(box, /tabindex="-1"/);
+	const title = box.match(/aria-labelledby="([^"]+)"/)[1];
+	assert.match(out, new RegExp(`<h2 class="error-summary-title[^"]*" id="${title}"><svg[^>]*aria-hidden="true"[^>]*>.*?</svg>2 fields need attention</h2>`));
+	const links = [...out.matchAll(/<a href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].map((m) => [m[1], m[2]]);
+	assert.deepEqual(links, [
+		['#g-name', 'Name: Give it a name.'],
+		['#g-capcode', 'Pages: Choose at least one capcode or alias.']
+	]);
+	// One field; a title of the app's own; a heading under a section.
+	assert.match(html(c.ErrorSummary, { problems: problems.slice(0, 1) }), />1 field needs attention<\/h2>/);
+	assert.match(html(c.ErrorSummary, { problems, title: 'There is a problem', level: 3 }), /<h3[^>]*>.*There is a problem<\/h3>/);
+	// No problems: nothing.
+	assert.equal(html(c.ErrorSummary, { problems: [] }).trim(), '');
+});
+
+test("DateRange's button: an id for an error summary's link, and a problem shown on it", () => {
+	const plain = html(c.DateRange, { timeZone: 'UTC' }).match(/<button[^>]*aria-haspopup[^>]*>/)[0];
+	assert.doesNotMatch(plain, /\bid=|invalid|aria-describedby/);
+	const out = html(c.DateRange, { timeZone: 'UTC', id: 'recent-dates', invalid: true, describedby: 'dates-hint dates-error' }).match(/<button[^>]*aria-haspopup[^>]*>/)[0];
+	assert.match(out, /id="recent-dates"/);
+	assert.match(out, /class="[^"]*\binvalid\b/);
+	assert.match(out, /aria-describedby="dates-hint dates-error"/);
+	assert.doesNotMatch(out, /aria-invalid/);
+});
+
+test('DateRange on a phone: the calendar is fixed above the bottom bar and the dock, and scrolls itself', () => {
+	const src = readFileSync(new URL('../src/components/DateRange.svelte', import.meta.url), 'utf8');
+	const phone = src.match(/@media \(max-width: 47\.99rem\) \{\s*\.calendar \{([^}]*)\}/)?.[1];
+	assert.ok(phone, 'a phone rule for the calendar');
+	assert.match(phone, /position: fixed/);
+	assert.match(phone, /bottom: calc\(var\(--bottom-bar-height\) \+ env\(safe-area-inset-bottom\) \+ var\(--dock-offset\)/);
+	assert.match(phone, /max-height: calc\(\s*var\(--full-height\) - var\(--topbar-height, 0px\)/);
+	assert.match(phone, /overflow-y: auto/);
 });

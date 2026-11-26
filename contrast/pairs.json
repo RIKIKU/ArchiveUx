@@ -96,6 +96,10 @@
     { "id": "more-edge", "what": "MoreActions: the list's edge, over the page, a card or a hovered row", "fg": "control-border", "on": ["bg", "surface", "hover"], "kind": "edge" },
     { "id": "more-open-edge", "what": "MoreActions: the button's edge while open", "fg": "accent", "on": ["accent-soft"], "kind": "edge" },
     { "id": "more-focus", "what": "MoreActions: the focus ring on an action in the list", "fg": "focus", "on": ["surface-2", "hover"], "kind": "edge" },
+    { "id": "summary-title", "what": "ErrorSummary: its title (.error-summary)", "fg": "fg", "on": ["bg", "surface", "surface-2"], "kind": "text" },
+    { "id": "summary-link", "what": "ErrorSummary: a problem's link (.error-summary)", "fg": "danger-text", "on": ["bg", "surface", "surface-2"], "kind": "text" },
+    { "id": "summary-edge", "what": "ErrorSummary: its edge", "fg": "danger", "on": ["bg", "surface", "surface-2"], "kind": "edge" },
+    { "id": "summary-focus", "what": "ErrorSummary: the focus ring round it, and on a link", "fg": "focus", "on": ["bg", "surface", "surface-2"], "kind": "edge" },
     { "id": "notice-countdown", "what": "Notice countdown line on the notice", "fg": "notice-edge", "on": ["highlight"], "kind": "edge" },
     { "id": "landing-ring", "what": "Release landing ring on the side menu or bottom bar", "fg": "notice-edge", "on": ["surface"], "kind": "edge" },
 

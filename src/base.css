@@ -312,6 +312,48 @@ table {
 	font-weight: var(--weight-strong);
 }
 
+/* The error summary at the top of a form (0.6.0; ErrorSummary.svelte): a
+   title counting the fields, then a link for each problem naming its field
+   ("Name: Give it a name."), which moves the focus to that field. A
+   --danger edge (field-invalid's pair, at least 3:1), the title --fg, the
+   links --danger-text and underlined (field-error's pair, at least 4.5:1),
+   on --bg, --surface or --surface-2. It takes the focus after a save
+   (tabindex="-1"), drawn as any focus is. */
+.error-summary {
+	margin: 0 0 var(--space-lg);
+	padding: var(--space-md) var(--space-lg);
+	border: var(--border-width-strong) solid var(--danger);
+	border-radius: var(--radius);
+}
+.error-summary:focus {
+	outline: var(--focus-width) solid var(--focus);
+	outline-offset: var(--border-width);
+}
+.error-summary-title {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	margin: 0 0 var(--space-xs);
+	color: var(--fg);
+	font-size: var(--text-base);
+	font-weight: var(--weight-strong);
+}
+.error-summary-title .ui-icon {
+	color: var(--danger-text);
+}
+.error-summary-list {
+	margin: 0;
+	padding-left: var(--space-lg);
+}
+.error-summary-list li + li {
+	margin-top: var(--space-2xs);
+}
+.error-summary-list a {
+	color: var(--danger-text);
+	font-weight: var(--weight-strong);
+	text-decoration: underline;
+}
+
 /* A control the app has found a problem in. Only aria-invalid marks it,
    never :invalid, so an empty required field isn't red before a save. The
    border goes --danger and doubles inside, so nothing moves. */
