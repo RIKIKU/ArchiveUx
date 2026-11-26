@@ -22,7 +22,9 @@
 	// is picked. An empty time is the whole day: From's day from its start,
 	// To's day to its end. On one day, a To time before the From time swaps
 	// them when the calendar closes. Enter in a time closes the calendar, so
-	// it never sends a form half set. Without times, nothing of this is drawn
+	// it never sends a form half set. A tap or a click on a time opens the
+	// browser's own picker (0.5.1, openPicker); the keyboard still types it.
+	// Without times, nothing of this is drawn
 	// and the calendar is PagerArchive's, unchanged.
 	//
 	// The range is in the form as from and to (hidden fields, YYYY-MM-DD),
@@ -33,6 +35,7 @@
 	import { tick } from 'svelte';
 	import Icon from './Icon.svelte';
 	import { isoDate } from '../dates.js';
+	import { openPicker } from './picker.js';
 
 	/**
 	 * @type {{
@@ -449,6 +452,7 @@
 							disabled={!start}
 							aria-describedby="{uid}-times-hint"
 							oninput={(e) => (startTime = e.currentTarget.value)}
+							onclick={openPicker}
 							onkeydown={timeKey}
 						/>
 					</div>
@@ -462,6 +466,7 @@
 							disabled={!start}
 							aria-describedby="{uid}-times-hint"
 							oninput={(e) => (endTime = e.currentTarget.value)}
+							onclick={openPicker}
 							onkeydown={timeKey}
 						/>
 					</div>

@@ -2,6 +2,17 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.5.1
+
+A tap on a time field opens the browser's own time picker (RadioArchive's owner, on Chrome for Android, where the fields showed as segments to type into and the clock hid behind a small icon).
+
+**Nothing else changes**: no token, class, pairing or word. Moving from 0.5.0 needs no change in the app.
+
+- **`DateRange`'s From time and To time** open their picker on a tap or a click (`showPicker()`). Typing still works: a click without a pointer (a keyboard's or a screen reader's, `detail` 0) and focus alone open nothing, and Enter still closes the calendar. While no day is picked the fields stay disabled, and nothing opens. A browser without `showPicker`, or one that refuses (no user activation, a cross-origin frame), keeps its own behaviour.
+- **`openPicker`** (`archiveux/components`): the same for an app's own date or time field, as its `onclick`.
+- **Rules** (section 4, "Dates": the time fields).
+- **Tests**: `openPicker` on a click, a keyboard's click, a disabled or read-only field, and a browser without it or that refuses.
+
 ## 0.5.0
 
 The admin pages' building blocks, which RadioArchive's first admin pages (its ADR 0027) found missing and drew from tokens as stand-ins: a state badge, a banner, a data table, a way to ask before a destructive action, and More actions (ADR 0004, proposed: the implementer's calls, for the owner's review).

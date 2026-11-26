@@ -37,6 +37,7 @@ const html = (C, props = {}) => render(C, { props }).body.replace(/<!--[^>]*-->/
 test('every component is in the index', () => {
 	for (const n of NAMES) assert.equal(typeof c.index[n], 'function', n);
 	assert.ok(['signin', 'switch', 'calendar', 'previous', 'next', 'sort-none', 'sort-up', 'sort-down', 'info', 'error', 'warning'].every((n) => c.index.iconNames.includes(n)));
+	assert.equal(typeof c.index.openPicker, 'function');
 });
 
 test('the frame by default: no app switcher, no dock, nothing offset', () => {

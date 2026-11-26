@@ -1,5 +1,6 @@
 // ArchiveUx's components (0.3.0: the frame, ADR 0002; 0.4.0: DateRange and
-// Suggest, ADR 0003; 0.5.0: the admin pages' building blocks, ADR 0004).
+// Suggest, ADR 0003; 0.5.0: the admin pages' building blocks, ADR 0004;
+// 0.5.1: openPicker, a date or time field's own picker on a tap).
 // Svelte 5; import them from an app built with Vite or SvelteKit:
 //
 //   import { Frame, Menu, BottomBar, AccountMenu } from 'archiveux/components';
@@ -21,3 +22,4 @@ export { default as Confirm } from './Confirm.svelte';
 export { default as MoreActions } from './MoreActions.svelte';
 export { icons, iconNames } from './icons.js';
 export { sortRows, nextSort, sortWords, valueOf, textOf, compare } from './table.js';
+export { openPicker } from './picker.js';
