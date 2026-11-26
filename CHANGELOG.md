@@ -2,6 +2,20 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.6.0
+
+RadioArchive's owner, testing its Recent page on a phone (2026-11-27): the calendar's times were out of reach behind the player and the bottom bar, and "There is red text that says there's a problem with one of the fields. It doesn't say which field though so I have to guess."
+
+**Nothing changes for an app that doesn't opt in**, except DateRange's calendar on a phone: no token changes its value, the new classes, component and pairs have names neither app uses, and `openPicker` stays as it was. Moving from 0.5.1 needs no change in the app; to follow the new forms rule, a form moves its top message to `ErrorSummary`.
+
+- **`DateRange` on a phone** (under 48rem): the calendar is a panel fixed across the screen, its foot just above the bottom bar and the dock (`--bottom-bar-height`, the safe area, `--dock-offset`), never taller than the space up to the top bar (`--topbar-height`, set by `Frame`; none without it), and it scrolls on its own. The days and both times can always be reached, with a player showing or not. On desktops it is unchanged, under its button.
+- **`DateRange`'s button** takes `id` (so an error summary can link to it), `invalid` (its border `--danger`, as an invalid field's) and `describedby` (the field's hint and error). All optional; without them it draws as before.
+- **`ErrorSummary`** (`archiveux/components`) and **`.error-summary`**, after the GOV.UK error summary: the title "2 fields need attention" and, under it, a link for each problem naming its field and saying what to do ("Name: Give it a name."), which moves the focus to that field and brings it to the middle of the screen. Props `problems` (`{ id, label, message }[]`), `title`, `level`; `focus()` through `bind:this`. Also exported: `focusField`, `problemText`, `summaryTitle`.
+- **Rules** (section 5, rule 4, changed): the summary names and links each field, where it only counted them; the focus goes to the summary after a save that finds problems, where it went to the first problem; and a group's error goes beside the option or part it is about. Section 4, "Dates": the calendar on a phone.
+- **Contrast check**: new pairs `summary-title`, `summary-link` (text), `summary-edge`, `summary-focus` (edges), on `--bg`, `--surface` and `--surface-2`, from existing tokens. `contrast/findings.json` stays empty.
+- **Gallery**: the working form's summary is an `ErrorSummary`, which takes the focus and links to each field.
+- **Tests**: `ErrorSummary` rendered on the server; its words and its links' focus (`errorsummary.js`); the calendar's phone rule.
+
 ## 0.5.1
 
 A tap on a time field opens the browser's own time picker (RadioArchive's owner, on Chrome for Android, where the fields showed as segments to type into and the clock hid behind a small icon).

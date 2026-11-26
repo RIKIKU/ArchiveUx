@@ -330,8 +330,8 @@ On `--bg` or `--surface` (the dock). A delayed call is never Live. The app offer
 
 0.4.0 (ADR 0003). `DateRange`, moved from PagerArchive: a calendar icon button that opens one month's calendar to pick a range of days, and, **only when the app asks** (`times`), the times of day too.
 
-- **The button** is a secondary button with the calendar icon and, once a range is picked, the range in words beside it ("18 Nov – 22 Nov"; the year when it isn't this one), outlined `--accent` while set. Its accessible name is "Dates", or "Dates: 18 Nov – 22 Nov". Its tooltip says "Dates", and Escape hides it (WCAG 1.4.13).
-- **The calendar** is a dialog under the button: `--surface-2`, a `--control-border` edge, `--radius`, `--calendar-width` wide (at most `--panel-max`, so it fits a phone). The first day picked is From and the second To; the days between are joined by an `--accent-soft` bar, previewed (`--preview-opacity`) as the pointer or the focus moves. A second day before the first swaps them, the same day twice is one day, a third pick starts again, and closing after one pick is that one day. No day after today. The picked days are `--accent` with `--accent-fg`, today has a `--control-border` ring, days of other months are `--muted`.
+- **The button** is a secondary button with the calendar icon and, once a range is picked, the range in words beside it ("18 Nov – 22 Nov"; the year when it isn't this one), outlined `--accent` while set. Its accessible name is "Dates", or "Dates: 18 Nov – 22 Nov". Its tooltip says "Dates", and Escape hides it (WCAG 1.4.13). In a form (0.6.0) it takes the app's `id` (an error summary links to it), `describedby` (the field's hint and error) and `invalid`, which turns its border `--danger` as an invalid field's (`field-invalid`); a button takes no `aria-invalid`, so the error is in its description.
+- **The calendar** is a dialog under the button: `--surface-2`, a `--control-border` edge, `--radius`, `--calendar-width` wide (at most `--panel-max`). **On a phone** (under 48rem, 0.6.0) it is instead a panel fixed across the screen, `--page-pad-phone` from each side, its foot `--space-2xs` above the bottom bar and the dock (`--bottom-bar-height`, the safe area and `--dock-offset`), never taller than the space between them and the top bar (`--topbar-height`, which the frame sets), scrolling on its own when it needs more, with `--notice-shadow`. Under the button it ran behind the bottom bar and the dock, and the page could scroll no further than its foot, so the times were out of reach (RadioArchive's owner, 2026-11-27). The first day picked is From and the second To; the days between are joined by an `--accent-soft` bar, previewed (`--preview-opacity`) as the pointer or the focus moves. A second day before the first swaps them, the same day twice is one day, a third pick starts again, and closing after one pick is that one day. No day after today. The picked days are `--accent` with `--accent-fg`, today has a `--control-border` ring, days of other months are `--muted`.
 - **The month-and-year title** switches to the year's months, and the year to 12 years; years with no records (outside `firstPage` and `lastPage`) and months after this one are greyed out.
 - **Keys**: arrows move the day (Page Up and Page Down a month, with Shift a year; Home and End the week), Enter picks, Escape closes and gives the focus back to the button. In the months and years, arrows move and Page Up and Page Down go a year or 12.
 - **Days are the deployment's** (`timeZone`, an IANA name), never the browser's, and are `YYYY-MM-DD`. In a form the range is the hidden fields `from` and `to`; `onchange(from, to)` is told when the calendar closes with a different range.
@@ -371,11 +371,13 @@ Decided (owner, 2026-11-20): "at the moment there's no way to know what you must
    - The control keeps the native `required` attribute (it gives `aria-required` and the browser's validity state).
 2. **A conditional field says when it is required**, in muted words after its tag: `<span class="required">required</span> <span class="required-when">none saved yet</span>` shows as Secret `Required` none saved yet (a secret already saved needn't be entered again), and Header value `Required` with a header name. The tag is the same on every required field, so it is found the same way everywhere; the words after it say when. When the condition is false, the field shows as **optional** (no tag), and its `required` attribute is off: the attribute follows the condition, so the browser's validity state and the label always agree.
 3. **A rule over a group goes in a hint under the group**, not on each field: `<fieldset class="field-group" aria-describedby="pages-hint"><legend>Pages</legend><p class="field-hint" id="pages-hint">Choose at least one capcode or alias.</p>…</fieldset>`. The group's legend takes `required` the same way when the group as a whole must be filled. A field's own hint is a `.field-hint` under it, linked from the control with `aria-describedby`.
-4. **On save, each problem shows under its own field**, and **focus moves to the first problem**:
+4. **On save, each problem shows under its own field and in an error summary at the top, which names each field and links to it** (0.6.0, after the GOV.UK error summary; until then the top only counted the fields, and RadioArchive's owner, 2026-11-27: "It doesn't say which field though so I have to guess. I actually can't work out where the problem is."):
    - the control gets `aria-invalid="true"` and `aria-describedby` naming a `.field-error` under it that says what to do ("Give it a name."), in words; the border turns `--danger` (from `aria-invalid` only, never `:invalid`, so an untouched empty field isn't red);
-   - a group's problem goes in its own `.field-error` under the group, the fieldset gets `aria-describedby` to it (with the hint), and focus goes to its first control;
-   - the message at the top **only summarises**: "2 fields need attention" (`.error`, `aria-live="polite"`), never repeating each problem;
-   - a problem clears when the field is fixed and saved again (or as it is fixed, if the app checks as you type; either way the message and `aria-invalid` go together).
+   - **the error goes beside the control it is about**: under the field, or for a group (a fieldset of options) under the option or the part of the group it is about, never under another option of the group;
+   - a group's problem goes in its own `.field-error`, the fieldset gets `aria-describedby` to it (with the hint);
+   - **the summary** (`ErrorSummary`, or `.error-summary` by hand) is the title "2 fields need attention", then one link for each problem, in the form's order, that names its field and says what to do: "Name: Give it a name." Each link is `href="#<the control's id>"` (a group's: the control the problem is about, else its first) and moves the focus to that control, bringing it to the middle of the screen (`focusField`), so a sticky top bar or a phone's bottom bar and dock never hide it;
+   - **focus moves to the summary** after a save that finds problems (it has `tabindex="-1"`), so a screen reader reads the title and the links, and the first link is one Tab away;
+   - a problem clears when the field is fixed and saved again (or as it is fixed, if the app checks as you type; either way the field's message, its link in the summary and `aria-invalid` go together).
 5. **The app's own messages replace the browser's bubbles**: the form has `novalidate`, keeps `required` (and `type`, `min`, `pattern`…) on its controls, and on submit runs its own check, which reads each control's `validity` and adds the app's own rules (a group, a condition, what the server says). Why not keep the native bubbles: they show one problem at a time, at the browser's place and in its words, can't be styled to the look or measured, vanish on their own, and can't say a group's or a condition's rule, so a form would mix two kinds of message. With `novalidate` the attributes still give `aria-required`, `:required` and `checkValidity()`, so there is one source of truth and one kind of message. A problem the server finds is shown the same way, under its field.
 
 Classes (all from existing tokens; no new token):
@@ -389,14 +391,20 @@ Classes (all from existing tokens; no new token):
 | `.field-error` | A field's or group's problem | `--danger-text`, `--text-sm`, `--weight-strong` | `field-error`: text on `--bg`, `--surface`, `--surface-2` |
 | `[aria-invalid='true']` | An invalid input, select or textarea | border and inner ring `--danger`, `--border-width` | `field-invalid`: edge on `--bg`, `--surface`, `--surface-2` |
 | `.field-group` | A fieldset with a legend | no border or padding; legend `--weight-strong` | |
+| `.error-summary` | The error summary at the top (0.6.0; `ErrorSummary`): `.error-summary-title`, then `.error-summary-list` of links | edge `--border-width-strong` `--danger`, `--radius`, padded `--space-md` `--space-lg`; title `--fg` `--weight-strong` with the `error` icon in `--danger-text`; links `--danger-text`, `--weight-strong`, underlined; its focus `--focus-width` `--focus` | `summary-title`, `summary-link`: text, `summary-edge`, `summary-focus`: edges, on `--bg`, `--surface`, `--surface-2` |
 
-Measured (lowest of `--bg`, `--surface`, `--surface-2`): the Required tag, its text and outline, 6.16 / 8.80 (Harbour light / dark), 16.71 / 15.22 (Console); the hints and the "when" 6.65 / 7.30 and 6.70 / 7.17; the error 7.45 / 9.52 and 6.07 / 7.26; the invalid border 6.13 / 6.93 and 6.07 / 6.75.
+Measured (lowest of `--bg`, `--surface`, `--surface-2`): the Required tag, its text and outline, 6.16 / 8.80 (Harbour light / dark), 16.71 / 15.22 (Console); the hints and the "when" 6.65 / 7.30 and 6.70 / 7.17; the error 7.45 / 9.52 and 6.07 / 7.26; the invalid border 6.13 / 6.93 and 6.07 / 6.75. The error summary's links and edge are the error's and the invalid border's tokens on the same surfaces, so they measure the same.
+
+`ErrorSummary` (`archiveux/components`, 0.6.0): `problems` (`{ id, label, message }[]`: the control's id, the field's name as its label or legend says it, what to do), `title` (default "N fields need attention"), `level` (the title's heading, 2 by default). With no problems it draws nothing. `focus()` (through `bind:this`) moves the focus to it. `focusField(event, id)`, `problemText` and `summaryTitle` are exported for an app that draws its own.
 
 Example:
 
 ```html
 <form novalidate>
-  <p class="error" aria-live="polite">2 fields need attention</p>
+  <div class="error-summary" tabindex="-1" role="group" aria-labelledby="problems-title">
+    <h2 class="error-summary-title" id="problems-title">1 field needs attention</h2>
+    <ul class="error-summary-list"><li><a href="#name">Name: Give it a name.</a></li></ul>
+  </div>
   <div class="field">
     <label for="name">Name <span class="required">required</span></label>
     <input id="name" required aria-invalid="true" aria-describedby="name-error" />
@@ -413,7 +421,7 @@ Example:
 </form>
 ```
 
-Bad: `Name *`, `Note (optional)`, a marker that is easy to miss (0.2.0's grey "· required"), a red border with no words, a top message listing every problem, the browser's bubble beside a message of the app's own.
+Bad: `Name *`, `Note (optional)`, a marker that is easy to miss (0.2.0's grey "· required"), a red border with no words, a top message that counts problems without saying which fields, an error under one option of a group that is about another, the browser's bubble beside a message of the app's own.
 
 ## 6. Gallery
 

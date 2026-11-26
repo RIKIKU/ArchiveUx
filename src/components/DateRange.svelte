@@ -27,6 +27,11 @@
 	// Without times, nothing of this is drawn
 	// and the calendar is PagerArchive's, unchanged.
 	//
+	// On a phone (under 48rem, 0.6.0) the calendar is a panel fixed across
+	// the screen above the bottom bar and the dock (--dock-offset), under the
+	// top bar (--topbar-height), scrolling on its own, so the days and both
+	// times can always be reached while a player is showing.
+	//
 	// The range is in the form as from and to (hidden fields, YYYY-MM-DD),
 	// and with times also from_time and to_time (HH:MM, or empty), so a GET
 	// form sends it; onchange is told (from, to), and with times (from, to,
@@ -47,13 +52,19 @@
 	 *   times?: boolean,
 	 *   fromTime?: string,
 	 *   toTime?: string,
-	 *   onchange?: (from: string, to: string, fromTime?: string, toTime?: string) => void
+	 *   onchange?: (from: string, to: string, fromTime?: string, toTime?: string) => void,
+	 *   id?: string,
+	 *   invalid?: boolean,
+	 *   describedby?: string
 	 * }}
 	 * from and to: YYYY-MM-DD. firstPage and lastPage: the first and last days
 	 * with records (the years that can be picked). times: draw the times of
-	 * day; fromTime and toTime: HH:MM, or empty for the whole day.
+	 * day; fromTime and toTime: HH:MM, or empty for the whole day. id: the
+	 * button's (0.6.0), so an error summary can link to it; invalid: the
+	 * form found a problem in the range (the button's border --danger);
+	 * describedby: the ids of the field's hint and error, for the button.
 	 */
-	let { from = '', to = '', timeZone, firstPage, lastPage, times = false, fromTime = '', toTime = '', onchange } = $props();
+	let { from = '', to = '', timeZone, firstPage, lastPage, times = false, fromTime = '', toTime = '', onchange, id, invalid = false, describedby } = $props();
 
 	const uid = $props.id();
 	// Follow the range given (a new search, Clear all, Back), and what's picked.
@@ -319,9 +330,12 @@
 	<span class="has-tip" class:tip-off={tipOff || open} onpointerleave={() => (tipOff = false)} onfocusout={() => (tipOff = false)}>
 	<button
 		bind:this={button}
+		{id}
 		type="button"
 		class="secondary when"
 		class:set={!!label}
+		class:invalid
+		aria-describedby={describedby}
 		aria-label={label ? `Dates: ${label}` : 'Dates'}
 		aria-haspopup="dialog"
 		aria-expanded={open}
@@ -504,6 +518,13 @@
 	.when.set {
 		border-color: var(--accent);
 	}
+	/* A range the form found a problem in (rules, section 5): as an invalid
+	   field's border (field-invalid). A button can't take aria-invalid; the
+	   error is in its description (describedby). */
+	.when.invalid {
+		border-color: var(--danger);
+		box-shadow: inset 0 0 0 var(--border-width) var(--danger);
+	}
 	.calendar {
 		position: absolute;
 		top: 100%;
@@ -518,6 +539,29 @@
 		border-radius: var(--radius);
 		color: var(--fg);
 		font-weight: var(--weight-normal);
+	}
+	/* Phones (0.6.0): a panel fixed across the screen, its foot just above
+	   the bottom bar and the dock, its top no higher than the top bar's
+	   foot, scrolling on its own when it's taller than that. Under the
+	   button, it ran behind the bottom bar and the dock, and the page could
+	   scroll no further than its foot, so the times were out of reach. */
+	@media (max-width: 47.99rem) {
+		.calendar {
+			position: fixed;
+			top: auto;
+			left: var(--page-pad-phone);
+			right: var(--page-pad-phone);
+			bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom) + var(--dock-offset) + var(--space-2xs));
+			width: auto;
+			max-width: none;
+			max-height: calc(
+				var(--full-height) - var(--topbar-height, 0px) - var(--bottom-bar-height) - env(safe-area-inset-bottom) - var(--dock-offset) - 2 * var(--space-2xs)
+			);
+			margin-top: 0;
+			overflow-y: auto;
+			overscroll-behavior: contain;
+			box-shadow: var(--notice-shadow);
+		}
 	}
 	.head {
 		display: flex;
