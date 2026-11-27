@@ -2,6 +2,19 @@
 
 Every release of `archiveux`. Apps pin a release tag (`github:RIKIKU/ArchiveUx#vX.Y.Z`), so read the entries between your tag and the new one before you upgrade.
 
+## 0.7.0
+
+The owner (2026-11-28): "Light/dark should also be shared" across the apps on one parent domain, as the look is.
+
+**Nothing changes for an app that doesn't opt in**: the `look` cookie and every look function are as they were, no token, class or pairing changes, and the new functions and the menu's `ontheme` have names neither app uses. An app on an older ArchiveUx ignores the new cookie, and a browser holding only the `look` cookie paints as before. Moving from 0.6.0 needs no change in the app; to share the theme, see below.
+
+- **The shared theme cookie** (`archiveux/look.js`; rules, section 1, rule 8): a cookie of its own, named by the app (`theme`), holding `light` or `dark`; absent follows the system. The look cookie's attributes: the app's parent domain (none for host-only), `Path=/`, a year, `SameSite=Lax`, `Secure` on https, not `HttpOnly`. Choosing Auto deletes it (`Max-Age=0`, the same Domain and Path).
+- **New in `look.js`**, mirroring the look's: `THEMES` (`['light', 'dark']`), `DEFAULT_THEME` (`'system'`), `isTheme(v)`, `themeFromCookies(cookies, name)` (`'light' | 'dark' | null`; anything else is absent, and an empty or unknown one is passed over for a second of the same name), `pickTheme({ cookies, cookie, own })` (the cookie's, else the app's own, else `'system'`), `themeCookie(theme, { name, domain?, maxAge?, secure? })` (`'system'` or null writes the deletion), `themeAttribute(theme)` (`data-theme="dark"`, or `''` for the system's) and `applyTheme(theme, cookie?)` (sets or removes `data-theme`; with a cookie, writes or deletes it; with a domain, deletes a host-only cookie of the same name first).
+- **`AccountMenu`** takes `ontheme(theme)`, called when the colour theme is chosen, as `onlook` is for the look: the app saves it as it does today and, in a combined deployment, calls `applyTheme(theme, { name: 'theme', domain })`. If it throws, the old theme comes back and the menu says "Couldn't save the theme. Try again." `theme` stays bindable; without `ontheme` the menu works as before.
+- **To share the theme**, an app: renders `data-theme` on `<html>` from `pickTheme({ cookies: <Cookie header>, cookie: 'theme', own: <its own choice> })` (with `themeAttribute`), and writes the cookie on a change with `applyTheme(theme, { name: 'theme', domain: <its LOOK_COOKIE_DOMAIN>, secure })`. One that keeps its own choice in `localStorage` should forget it once it writes the cookie.
+- **Gallery**: the frame page applies the theme with `applyTheme`.
+- **Tests**: the theme cookie read, written and deleted, the first-paint order, the attribute, and `applyTheme`'s cookies.
+
 ## 0.6.0
 
 RadioArchive's owner, testing its Recent page on a phone (2026-11-27): the calendar's times were out of reach behind the player and the bottom bar, and "There is red text that says there's a problem with one of the fields. It doesn't say which field though so I have to guess."

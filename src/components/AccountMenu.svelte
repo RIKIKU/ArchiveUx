@@ -11,7 +11,10 @@
 	// on the account when signed in, else as the app saves its other
 	// settings, and in the shared look cookie in a combined deployment
 	// (look.js). If onlook throws, the old look comes back and the menu says
-	// so.
+	// so. The theme is saved the same way by ontheme (0.7.0): as the app
+	// keeps it, and in the shared theme cookie in a combined deployment
+	// (applyTheme in look.js writes it, or deletes it for Auto, the system's).
+	// If ontheme throws, the old theme comes back and the menu says so.
 	import Icon from './Icon.svelte';
 
 	/**
@@ -20,13 +23,14 @@
 	 *   theme?: 'system' | 'light' | 'dark',
 	 *   look?: 'harbour' | 'console',
 	 *   onlook?: (look: 'harbour' | 'console') => unknown,
+	 *   ontheme?: (theme: 'system' | 'light' | 'dark') => unknown,
 	 *   signIn?: string | (() => unknown),
 	 *   onsignout?: () => unknown,
 	 *   links?: { href: string, label: string, icon?: string, svg?: string }[],
 	 *   extra?: import('svelte').Snippet<[{ close: () => void }]>
 	 * }}
 	 */
-	let { account = null, theme = $bindable('system'), look = $bindable('harbour'), onlook, signIn = '/signin', onsignout, links = [], extra } = $props();
+	let { account = null, theme = $bindable('system'), look = $bindable('harbour'), onlook, ontheme, signIn = '/signin', onsignout, links = [], extra } = $props();
 
 	/** @type {HTMLDivElement} */
 	let box;
@@ -55,6 +59,19 @@
 		} catch {
 			look = before;
 			lookError = "Couldn't save the look. Try again.";
+		}
+	}
+
+	let themeError = $state('');
+	async function chooseTheme(/** @type {'system' | 'light' | 'dark'} */ next) {
+		const before = theme;
+		theme = next;
+		themeError = '';
+		try {
+			await ontheme?.(next);
+		} catch {
+			theme = before;
+			themeError = "Couldn't save the theme. Try again.";
 		}
 	}
 
@@ -99,12 +116,13 @@
 		{/if}
 		<label class="theme">
 			<span class="row-label"><Icon name={theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'auto'} />Colour theme</span>
-			<select bind:value={theme}>
+			<select value={theme} onchange={(e) => chooseTheme(/** @type {'system' | 'light' | 'dark'} */ (e.currentTarget.value))}>
 				<option value="system">Auto</option>
 				<option value="light">Light</option>
 				<option value="dark">Dark</option>
 			</select>
 		</label>
+		{#if themeError}<p class="error look-error" role="alert">{themeError}</p>{/if}
 		<label class="theme">
 			<span class="row-label"><Icon name="look" />Look</span>
 			<select value={look} onchange={(e) => choose(/** @type {'harbour' | 'console'} */ (e.currentTarget.value))}>
