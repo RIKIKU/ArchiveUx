@@ -11,7 +11,7 @@
 	import AccountMenu from '../src/components/AccountMenu.svelte';
 	import Icon from '../src/components/Icon.svelte';
 	import LiveBadge from '../src/components/LiveBadge.svelte';
-	import { applyLook, isLook } from '../src/look.js';
+	import { applyLook, applyTheme, isLook } from '../src/look.js';
 	import { LIVE_WITHIN } from '../src/live.js';
 
 	const q = new URLSearchParams(location.search);
@@ -29,10 +29,7 @@
 	let open = $state({});
 
 	$effect(() => applyLook(look));
-	$effect(() => {
-		if (theme === 'system') delete document.documentElement.dataset.theme;
-		else document.documentElement.dataset.theme = theme;
-	});
+	$effect(() => applyTheme(theme));
 
 	const current = '/listen';
 	const top = [
